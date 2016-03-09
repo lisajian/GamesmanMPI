@@ -36,6 +36,8 @@ assert(inspect.isfunction(src.utils.game_module.initial_position))
 assert(inspect.isfunction(src.utils.game_module.do_move))
 assert(inspect.isfunction(src.utils.game_module.gen_moves))
 assert(inspect.isfunction(src.utils.game_module.primitive))
+if args.numpy:
+    assert(hasattr(src.utils.game_module, 'board_state_element_type'))
 
 
 # Set up our logging system
