@@ -1,3 +1,5 @@
+from .utils import *
+
 class Job:
     """
     A job has a game state, parent, type, and also has a priority for placing
@@ -27,3 +29,14 @@ class Job:
         they have.
         """
         return self.priority < other.priority
+
+    @staticmethod
+    def construct_job(numpy_rep):
+        pos_length = numpy_rep.size - utils.POS_START_INDEX
+        pos = numpy_rep[(-1 * pos_length):]
+        gs = GameState(pos, remoteness=numpy_rep[utils.REMOTENESS_INDEX], state=numpy_rep[utils.STATE_INDEX])
+        return Job(numpy_rep[utils.JOB_TYPE_INDEX], game_state=gs, parent=numpy_rep[utils.PARENT_INDEX], job_id=numpy_rep[utils.JOB_ID_INDEX])
+
+    def construct_numpy_representation(self):
+        metadata = np.array([job_type, parent, job_id, self.game_state.state, self.game_state.remoteness])
+        return np.append(metadata, self.game_state.pos)

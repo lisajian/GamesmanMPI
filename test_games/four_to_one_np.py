@@ -15,7 +15,7 @@ def gen_moves(x):
     return [-1, -2]
 
 def do_move(x, move):
-    return np.array([x + move])
+    return np.array([x[0] + move])
 
 def primitive(x):
     if x[0] <= 0:
