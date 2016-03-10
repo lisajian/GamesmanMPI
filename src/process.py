@@ -67,11 +67,11 @@ class Process:
         self.world_size = world_size
         self.comm = comm
         self.NP = NP
-        self.board_state_element_type = game_module.board_state_element_type
 
         if self.NP:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
             self.recv = self.comm.Recv
+            self.board_state_element_type = game_module.board_state_element_type
         else:
             self.send = self.comm.send
             self.recv = self.comm.recv
