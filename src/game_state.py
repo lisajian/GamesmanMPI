@@ -78,3 +78,7 @@ class GameState:
         variable is: WLTD?
         """
         return game_module.primitive(self.pos)
+
+    @property
+    def index(self):
+        return repr(self.pos)

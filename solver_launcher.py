@@ -41,7 +41,7 @@ if args.numpy:
 
 
 # Set up our logging system
-logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=logging.DEBUG)
+logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=logging.WARNING)
 
 initial_position = src.utils.game_module.initial_position()
 

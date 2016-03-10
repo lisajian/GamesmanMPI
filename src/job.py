@@ -1,4 +1,5 @@
 from .utils import *
+import numpy as np
 
 class Job:
     """
@@ -38,5 +39,5 @@ class Job:
         return Job(numpy_rep[utils.JOB_TYPE_INDEX], game_state=gs, parent=numpy_rep[utils.PARENT_INDEX], job_id=numpy_rep[utils.JOB_ID_INDEX])
 
     def construct_numpy_representation(self):
-        metadata = np.array([job_type, parent, job_id, self.game_state.state, self.game_state.remoteness])
+        metadata = np.array([self.job_type, self.parent, self.job_id, self.game_state.state, self.game_state.remoteness])
         return np.append(metadata, self.game_state.pos)
