@@ -67,6 +67,7 @@ class Process:
         self.world_size = world_size
         self.comm = comm
         self.NP = NP
+        self.board_state_element_type = utils.game_module.board_state_element_type
 
         if self.NP:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
@@ -166,9 +167,11 @@ class Process:
             logging.info("Machine " + str(self.rank)
                        + " found child " + str(new_job.game_state.pos)
                        + ", sending to " + str(child.get_hash(self.world_size)))
-
-            self.send(new_job, dest = child.get_hash(self.world_size))
-
+            if self.NP:
+                new_job_to_send = new_job.construct_numpy_representation() # Package job with NumPy for sending
+                self.send([new_job_to_send, self.board_state_element_type], dest = child.get_hash(self.world_size))
+            else:
+                self.send(new_job, dest = child.get_hash(self.world_size))
         self._update_id()
 
     def check_for_updates(self, job):
@@ -181,7 +184,12 @@ class Process:
         # Probe for any sources
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
-            self.received.append(self.recv(source=MPI.ANY_SOURCE))
+            if self.NP:
+                data = None
+                self.recv([new_job_data, self.board_state_element_type], source=MPI.ANY_SOURCE)
+                self.received.append(Job.construct_job(new_job_data))
+            else:
+                self.received.append(self.recv(source=MPI.ANY_SOURCE)))
             for job in self.received:
                 self.add_job(job)
         del self.received[:]
@@ -193,7 +201,11 @@ class Process:
         """
         logging.info("Machine " + str(self.rank) + " is sending back " + str(job.game_state.pos) + " to " + str(job.parent))
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        self.send(resolve_job, dest=resolve_job.parent)
+        if self.NP:
+            resolve_job_to_send = resolve_job.construct_numpy_representation()
+            self.send([resolve_job_to_send, self.board_state_element_type], dest=resolve_job.parent)
+        else:
+            self.send(resolve_job, dest=resolve_job.parent)
 
     def _res_red(self, res1, res2):
         """

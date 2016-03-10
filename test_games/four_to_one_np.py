@@ -6,8 +6,7 @@ def initial_position():
     return np.array([4])
 
 # For possible types, see https://computing.llnl.gov/tutorials/mpi/#Routine_Arguments
-def board_state_element_type():
-    return MPI.INT
+board_state_element_type = MPI.INT
 
 def gen_moves(x):
     if x[0] == 1:

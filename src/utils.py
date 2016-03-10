@@ -4,6 +4,7 @@ PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
 
+
 """
 The following constants help us store Job objects as NumPy arrays
 for optimization purposes. POS_START_INDEX must always be the
