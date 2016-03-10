@@ -14,7 +14,7 @@ mpiexec -n 5 python solver_launcher.py test_games/four_to_one.py
 ```
 Your game file must follow the conventions outlined in the API
 
-### <a name="optimize-desc"></a> (Optional) Optimization with NumPy
+### <a name="optimize-desc"></a>(Optional) Optimization with NumPy
 Communication between processes can be greatly sped up if board state are stored as certain datatypes. Specifically, if your Gamestate object is a NumPy array in which the elements are of an [MPI Elementary data type](https://computing.llnl.gov/tutorials/mpi/#Routine_Arguments "MPI Primitives"), you can use the `-np` or `--numpy` flag to run an optimized version of the solver. Note that you must add an additional method to your game file to specify the specific data type you are using. See [API Description](#optimize-api)
 
 ## Testing
@@ -92,7 +92,7 @@ def primitive(x):
 ```
 
 #### <a name="optimize-api"></a> board_state_element_type (Optional)
-The type associated with the NumPy arrays used to represent a board_state. See [optimization](#optimize-desc)
+The type associated with the NumPy arrays used to represent a board state. See [optimization](#optimize-desc)
 
 ###### Example
 ```python
