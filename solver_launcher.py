@@ -41,7 +41,7 @@ if args.numpy:
 
 
 # Set up our logging system
-logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=logging.WARNING)
+logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=logging.DEBUG)
 
 initial_position = src.utils.game_module.initial_position()
 
@@ -50,5 +50,4 @@ if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
     initial_job = Job(Job.LOOK_UP, initial_gamestate, process.rank, 0) # Defaults at zero, TODO: Fix abstraction violation.
     process.add_job(initial_job)
-
 process.run()
