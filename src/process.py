@@ -67,7 +67,7 @@ class Process:
         self.world_size = world_size
         self.comm = comm
         self.NP = NP
-        self.board_state_element_type = utils.game_module.board_state_element_type
+        self.board_state_element_type = game_module.board_state_element_type
 
         if self.NP:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
@@ -189,7 +189,7 @@ class Process:
                 self.recv([new_job_data, self.board_state_element_type], source=MPI.ANY_SOURCE)
                 self.received.append(Job.construct_job(new_job_data))
             else:
-                self.received.append(self.recv(source=MPI.ANY_SOURCE)))
+                self.received.append(self.recv(source=MPI.ANY_SOURCE))
             for job in self.received:
                 self.add_job(job)
         del self.received[:]
