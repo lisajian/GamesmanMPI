@@ -18,7 +18,7 @@ Your game file must follow the conventions outlined in the API
 Communication between processes can be greatly sped up if board state are stored as certain datatypes. Specifically, if your Gamestate object is a NumPy array in which the elements are of an [MPI Elementary data type](https://computing.llnl.gov/tutorials/mpi/#Routine_Arguments "MPI Primitives"), you can use the `-np` or `--numpy` flag to run an optimized version of the solver. Note that you must add an additional method to your game file to specify the specific data type you are using. See [API Description](#optimize-api)
 
 ## Testing
-Also included is a very testing script, `testing.sh`, which allows you to time the game solver within a certain range of process counts, and also compare that to local solver performance. Use the following syntax:
+Also included is a very simple testing script, `testing.sh`, which allows you to time the game solver within a certain range of process counts, and also compare that to local solver performance. Use the following syntax:
 ```
 bash testing.sh <your game file> <min # of processes> <max # of processes> <# of runs per process> <-l> <-np>
 ```
