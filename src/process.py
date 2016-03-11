@@ -1,5 +1,6 @@
 import sys
 from mpi4py import MPI
+import numpy as np
 from .game_state import GameState
 from .job import Job
 from .utils import *
@@ -30,6 +31,7 @@ class Process:
             self.distribute,
             self.check_for_updates
         )
+        #print(job.job_type)
         return _dispatch_table[job.job_type](job)
     def _queue_to_str(self, q):
         """
@@ -71,6 +73,7 @@ class Process:
         if self.NP:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
             self.recv = self.comm.Recv
+            self.pos_size = GameState.INITIAL_POS.size
             self.board_state_element_type = game_module.board_state_element_type
         else:
             self.send = self.comm.send
@@ -185,7 +188,7 @@ class Process:
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
             if self.NP:
-                new_job_data = None
+                new_job_data = np.empty(POS_START_INDEX + self.pos_size)
                 self.recv(new_job_data, source=MPI.ANY_SOURCE)
                 self.received.append(Job.construct_job(new_job_data))
             else:
