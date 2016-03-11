@@ -1,6 +1,7 @@
 from .utils import *
 from src.game_state import GameState
 import numpy as np
+import logging
 
 class Job:
     """
@@ -34,11 +35,15 @@ class Job:
 
     @staticmethod
     def construct_job(numpy_rep):
+        logging.debug("Constructing job from " + str(numpy_rep))
         pos_length = numpy_rep.size - POS_START_INDEX
         pos = numpy_rep[(-1 * pos_length):]
         gs = GameState(pos, remoteness=numpy_rep[REMOTENESS_INDEX], state=numpy_rep[STATE_INDEX])
-        return Job(int(numpy_rep[JOB_TYPE_INDEX]), game_state=gs, parent=int(numpy_rep[PARENT_INDEX]), job_id=int(numpy_rep[JOB_ID_INDEX]))
+        to_ret = Job(int(numpy_rep[JOB_TYPE_INDEX]), game_state=gs, parent=int(numpy_rep[PARENT_INDEX]), job_id=int(numpy_rep[JOB_ID_INDEX]))
+        logging.debug("Constructed job with following data: " + str(to_ret.__dict__))
+        logging.debug("GameState: " + str(gs.__dict__))
+        return to_ret
 
     def construct_numpy_representation(self):
-        metadata = np.array([self.job_type, self.parent, self.job_id, self.game_state.state, self.game_state.remoteness])
+        metadata = np.array([self.job_type, self.parent, self.job_id, self.game_state.remoteness, self.game_state.state])
         return np.append(metadata, self.game_state.pos)
