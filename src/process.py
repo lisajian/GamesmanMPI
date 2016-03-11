@@ -31,7 +31,6 @@ class Process:
             self.distribute,
             self.check_for_updates
         )
-        #print(job.job_type)
         return _dispatch_table[job.job_type](job)
     def _queue_to_str(self, q):
         """
