@@ -1,4 +1,5 @@
 from mpi4py import MPI
+import numpy as np
 import inspect
 import logging
 import imp
@@ -38,6 +39,7 @@ assert(inspect.isfunction(src.utils.game_module.gen_moves))
 assert(inspect.isfunction(src.utils.game_module.primitive))
 if args.numpy:
     assert(hasattr(src.utils.game_module, 'board_state_element_type'))
+    assert(isinstance(src.utils.game_module.initial_position(), np.ndarray))
 
 
 # Set up our logging system
