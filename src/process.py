@@ -38,7 +38,7 @@ class Process:
         For debugging purposes.
         Prints the job type for each job in the job queue.
         """
-        return ', '.join([str(j.job_type) + " " + str(j.game_state.pos) for j in q.queue])
+        return ', '.join([JOB_TYPE_LIST[j.job_type] + " " + str(j.game_state.pos) for j in q.queue])
 
     def _log_work(self, work):
         check_for_updates = 'check_for_updates, check_for_updates'
@@ -54,7 +54,7 @@ class Process:
             if self.rank == self.root and self.initial_pos.index in self.resolved:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
-                print (str(self.resolved[self.initial_pos.index]) + " in " + str(self.remote[self.initial_pos.index]) + " moves")
+                print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
@@ -74,7 +74,6 @@ class Process:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
             self.recv = self.comm.Recv
             self.pos_size = GameState.INITIAL_POS.size
-            self.board_state_element_type = game_module.board_state_element_type
         else:
             self.send = self.comm.send
             self.recv = self.comm.recv
@@ -169,7 +168,10 @@ class Process:
                        + ", sending to " + str(child.get_hash(self.world_size)))
             if self.NP:
                 new_job_to_send = new_job.construct_numpy_representation() # Package job with NumPy for sending
+                logging.debug("Preparing to send " + str(new_job_to_send) + " in distribute")
                 self.send(new_job_to_send, dest = child.get_hash(self.world_size))
+                logging.debug("Send successful")
+
             else:
                 self.send(new_job, dest = child.get_hash(self.world_size))
         self._update_id()
@@ -185,9 +187,11 @@ class Process:
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
             if self.NP:
-                new_job_data = np.zeros(POS_START_INDEX + self.pos_size)
-                self.recv(new_job_data, source=MPI.ANY_SOURCE)
+                new_job_data = np.arange(POS_START_INDEX + self.pos_size)
+                logging.debug("Preparing to receive")
+                self.recv([new_job_data, game_module.board_state_element_type], source=MPI.ANY_SOURCE)
                 self.received.append(Job.construct_job(new_job_data))
+                logging.debug("Receive successful, found " + str(new_job_data))
             else:
                 self.received.append(self.recv(source=MPI.ANY_SOURCE))
             for job in self.received:
@@ -203,7 +207,9 @@ class Process:
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
         if self.NP:
             resolve_job_to_send = resolve_job.construct_numpy_representation()
+            logging.debug("Preparing to send back " + str(resolve_job_to_send))
             self.send(resolve_job_to_send, dest=resolve_job.parent)
+            logging.debug("Send successful")
         else:
             self.send(resolve_job, dest=resolve_job.parent)
 
