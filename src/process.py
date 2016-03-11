@@ -32,6 +32,7 @@ class Process:
             self.check_for_updates
         )
         return _dispatch_table[job.job_type](job)
+
     def _queue_to_str(self, q):
         """
         For debugging purposes.
@@ -100,7 +101,7 @@ class Process:
                                   # Resolved.
         # Main process will terminate everyone by bcasting the value of
         # finished to True.
-        self.finished = False
+        #self.is_finished = False
 
     def add_job(self, job):
         """
@@ -187,7 +188,7 @@ class Process:
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
             if self.NP:
-                new_job_data = np.empty(POS_START_INDEX + self.pos_size)
+                new_job_data = np.zeros(POS_START_INDEX + self.pos_size)
                 self.recv(new_job_data, source=MPI.ANY_SOURCE)
                 self.received.append(Job.construct_job(new_job_data))
             else:
