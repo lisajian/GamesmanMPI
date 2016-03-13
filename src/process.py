@@ -54,7 +54,11 @@ class Process:
             if self.rank == self.root and self.initial_pos.index in self.resolved:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
+<<<<<<< HEAD
                 print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
+=======
+                print (to_str(self.resolved[self.initial_pos.pos]) + " in " + str(self.remote[self.initial_pos.pos]) + " moves")
+>>>>>>> upstream/master
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
@@ -68,9 +72,8 @@ class Process:
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
-        self.NP = NP
 
-        if self.NP:
+        if NP:
             self.send = self.comm.Send # send and recv redeclarations for brevity.
             self.recv = self.comm.Recv
             self.pos_size = GameState.INITIAL_POS.size
@@ -217,23 +220,13 @@ class Process:
         """
         Private method that helps reduce in resolve.
         """
-        # Probably can be done in a "cleaner" way.
-        if res2 is None:
-            if res1 == WIN:
-                return LOSS
-            elif res1 == LOSS:
-                return WIN
-            else:
-                return res1
+        nums = {LOSS : 0, DRAW : 1, TIE : 2, WIN : 3}
+        states = (LOSS, DRAW, TIE, WIN)
 
-        if res1 == LOSS and res2 == LOSS:
-            return WIN
-        elif res1 == WIN or res2 == WIN:
-            return LOSS
-        elif res1 == TIE or res2 == TIE:
-            return TIE
-        elif res1 == DRAW or res2 == DRAW:
-            return DRAW
+        if res2 == None:
+            return negate(res1)
+        max_num = max(nums[res1], nums[res2])
+        return negate(states[max_num])
 
     def _remote_red(self, rem1, rem2):
         """
@@ -241,18 +234,17 @@ class Process:
         Takes in two GameStates, and returns a Job with
         with an appropriate remoteness.
         """
+        # TODO: Make cleaner.
         if rem2 is None:
-            return GameState(None, rem1.remoteness + 1, rem1.state)
+            return GameState(None, rem1.remoteness, rem1.state)
 
-        if rem1.state == WIN and rem2.state == WIN:
-            return GameState(None, max(rem1.remoteness, rem2.remoteness) + 1, rem1.state)
-        elif rem2.state == WIN:
-            return GameState(None, rem1.remoteness + 1, rem2.state)
-        elif rem1.state == WIN:
-            return GameState(None, rem2.remoteness + 1, rem1.state)
+        if rem1.state == WIN or rem2.state == WIN:
+            return GameState(None, max(rem1.remoteness, rem2.remoteness), WIN)
+        elif rem2.state == LOSS and rem1.state == LOSS:
+            return GameState(None, min(rem1.remoteness, rem2.remoteness), LOSS)
         else:
             # Use rem1.state by default, but rem2.state should work too.
-            return GameState(None, min(rem1.remoteness, rem2.remoteness) + 1, rem1.state)
+            return GameState(None, max(rem1.remoteness, rem2.remoteness), rem1.state)
 
     def reduce_helper(self, function, data):
         if len(data) == 1:
@@ -283,10 +275,17 @@ class Process:
                     logging.info(res_str)
                 state_red = [gs.state for gs in resolve_data]
                 #remoteness_red = [gs.remoteness for gs in resolve_data]
+<<<<<<< HEAD
                 self.resolved[to_resolve.game_state.index] = self.reduce_helper(self._res_red, state_red)
                 self.remote[to_resolve.game_state.index] = self.reduce_helper(self._remote_red, resolve_data).remoteness
                 job.game_state.state = self.resolved[to_resolve.game_state.index]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.index]
+=======
+                self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
+                self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
+                job.game_state.state = self.resolved[to_resolve.game_state.pos]
+                job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
+>>>>>>> upstream/master
             logging.info("Resolved " + str(job.game_state.pos) +
                          " to " + str(job.game_state.state) +
                          ", remoteness: " + str(self.remote[to_resolve.game_state.index]))
