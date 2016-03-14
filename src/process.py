@@ -55,6 +55,7 @@ class Process:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
                 print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
+                self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
             job = self.work.get()
