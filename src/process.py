@@ -165,7 +165,7 @@ class Process:
             logging.info("Machine " + str(self.rank)
                        + " found child " + str(new_job.game_state.pos)
                        + ", sending to " + str(child.get_hash(self.world_size)))
-            if self.NP:
+            if NP:
                 new_job_to_send = new_job.construct_numpy_representation() # Package job with NumPy for sending
                 logging.debug("Preparing to send " + str(new_job_to_send) + " in distribute")
                 self.send(new_job_to_send, dest = child.get_hash(self.world_size))
@@ -185,7 +185,7 @@ class Process:
         # Probe for any sources
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
-            if self.NP:
+            if NP:
                 new_job_data = np.arange(POS_START_INDEX + self.pos_size)
                 logging.debug("Preparing to receive")
                 self.recv([new_job_data, game_module.board_state_element_type], source=MPI.ANY_SOURCE)
@@ -204,7 +204,7 @@ class Process:
         """
         logging.info("Machine " + str(self.rank) + " is sending back " + str(job.game_state.pos) + " to " + str(job.parent))
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        if self.NP:
+        if NP:
             resolve_job_to_send = resolve_job.construct_numpy_representation()
             logging.debug("Preparing to send back " + str(resolve_job_to_send))
             self.send(resolve_job_to_send, dest=resolve_job.parent)

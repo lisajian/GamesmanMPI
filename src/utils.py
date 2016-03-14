@@ -4,6 +4,7 @@ PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
+NP = False
 
 # Used for logging/display purposes
 STATE_MAP       = {1:"win", -1:"loss", -2:"tie", 2:"draw", 0:"undecided"}
