@@ -54,11 +54,7 @@ class Process:
             if self.rank == self.root and self.initial_pos.index in self.resolved:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
-<<<<<<< HEAD
                 print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
-=======
-                print (to_str(self.resolved[self.initial_pos.pos]) + " in " + str(self.remote[self.initial_pos.pos]) + " moves")
->>>>>>> upstream/master
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
@@ -169,7 +165,7 @@ class Process:
             logging.info("Machine " + str(self.rank)
                        + " found child " + str(new_job.game_state.pos)
                        + ", sending to " + str(child.get_hash(self.world_size)))
-            if self.NP:
+            if NP:
                 new_job_to_send = new_job.construct_numpy_representation() # Package job with NumPy for sending
                 logging.debug("Preparing to send " + str(new_job_to_send) + " in distribute")
                 self.send(new_job_to_send, dest = child.get_hash(self.world_size))
@@ -189,7 +185,7 @@ class Process:
         # Probe for any sources
         if self.comm.iprobe(source=MPI.ANY_SOURCE):
             # If there are sources recieve them.
-            if self.NP:
+            if NP:
                 new_job_data = np.arange(POS_START_INDEX + self.pos_size)
                 logging.debug("Preparing to receive")
                 self.recv([new_job_data, game_module.board_state_element_type], source=MPI.ANY_SOURCE)
@@ -208,7 +204,7 @@ class Process:
         """
         logging.info("Machine " + str(self.rank) + " is sending back " + str(job.game_state.pos) + " to " + str(job.parent))
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        if self.NP:
+        if NP:
             resolve_job_to_send = resolve_job.construct_numpy_representation()
             logging.debug("Preparing to send back " + str(resolve_job_to_send))
             self.send(resolve_job_to_send, dest=resolve_job.parent)
@@ -275,17 +271,10 @@ class Process:
                     logging.info(res_str)
                 state_red = [gs.state for gs in resolve_data]
                 #remoteness_red = [gs.remoteness for gs in resolve_data]
-<<<<<<< HEAD
                 self.resolved[to_resolve.game_state.index] = self.reduce_helper(self._res_red, state_red)
-                self.remote[to_resolve.game_state.index] = self.reduce_helper(self._remote_red, resolve_data).remoteness
+                self.remote[to_resolve.game_state.index] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
                 job.game_state.state = self.resolved[to_resolve.game_state.index]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.index]
-=======
-                self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
-                self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
-                job.game_state.state = self.resolved[to_resolve.game_state.pos]
-                job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
->>>>>>> upstream/master
             logging.info("Resolved " + str(job.game_state.pos) +
                          " to " + str(job.game_state.state) +
                          ", remoteness: " + str(self.remote[to_resolve.game_state.index]))
