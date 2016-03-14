@@ -18,7 +18,7 @@ comm = MPI.COMM_WORLD
 # Load file and give it to each process.
 game_module = imp.load_source('game_module', args.game_file)
 src.utils.game_module = game_module
-src.utils.game_module = args.numpy
+src.utils.NP = args.numpy
 
 # Make sure every process has a copy of this.
 comm.Barrier()

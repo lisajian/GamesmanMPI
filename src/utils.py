@@ -4,10 +4,10 @@ PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
-NP = False
+NP                              = None # This is initialized in solve_launcher.py
 
 # Used for logging/display purposes
-STATE_MAP       = {1:"win", -1:"loss", -2:"tie", 2:"draw", 0:"undecided"}
+STATE_MAP       = {0:"win", 1:"loss", 2:"tie", 3:"draw", 4:"undecided"}
 JOB_TYPE_LIST   = ["finished", "lookup", "resolve", "send back", "distribute", "check for updates"]
 
 
