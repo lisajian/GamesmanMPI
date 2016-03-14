@@ -55,7 +55,6 @@ class Process:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
                 print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
-                self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
             job = self.work.get()
@@ -271,12 +270,12 @@ class Process:
                     logging.info(res_str)
                 state_red = [gs.state for gs in resolve_data]
                 #remoteness_red = [gs.remoteness for gs in resolve_data]
-                self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
-                self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
-                job.game_state.state = self.resolved[to_resolve.game_state.pos]
-                job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
+                self.resolved[to_resolve.game_state.index] = self.reduce_helper(self._res_red, state_red)
+                self.remote[to_resolve.game_state.index] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
+                job.game_state.state = self.resolved[to_resolve.game_state.index]
+                job.game_state.remoteness = self.remote[to_resolve.game_state.index]
             logging.info("Resolved " + str(job.game_state.pos) +
                          " to " + str(job.game_state.state) +
-                         ", remoteness: " + str(self.remote[to_resolve.game_state.pos]))
+                         ", remoteness: " + str(self.remote[to_resolve.game_state.index]))
             to = Job(Job.SEND_BACK, job.game_state, to_resolve.parent, to_resolve.job_id)
             self.add_job(to)
