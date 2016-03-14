@@ -5,7 +5,6 @@ PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
 
-<<<<<<< HEAD
 # Used for logging/display purposes
 STATE_MAP       = {1:"win", -1:"loss", -2:"tie", 2:"draw", 0:"undecided"}
 JOB_TYPE_LIST   = ["finished", "lookup", "resolve", "send back", "distribute", "check for updates"]
@@ -23,7 +22,7 @@ JOB_ID_INDEX = 2
 REMOTENESS_INDEX = 3
 STATE_INDEX = 4
 POS_START_INDEX = 5
-=======
+
 def negate(state):
     neg = (1, 0, 2, 3, 4)
     return neg[state]
@@ -31,4 +30,3 @@ def negate(state):
 def to_str(state):
     str_rep = ("WIN", "LOSS", "TIE", "DRAW", "UNDECIDED")
     return str_rep[state]
->>>>>>> upstream/master
