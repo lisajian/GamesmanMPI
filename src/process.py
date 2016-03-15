@@ -28,6 +28,7 @@ class Process:
             self.resolve,
             self.send_back,
             self.distribute,
+            self.stats,
             self.check_for_updates
         )
         return _dispatch_table[job.job_type](job)
@@ -37,7 +38,8 @@ class Process:
         For debugging purposes.
         Prints the job type for each job in the job queue.
         """
-        return ', '.join([str(j.job_type) + " " + str(j.game_state.pos) for j in q.queue])
+        return " " 
+        # return ', '.join([str(j.job_type) + " " + str(j.game_state.pos) for j in q.queue])
 
     def _log_work(self, work):
         check_for_updates = 'check_for_updates, check_for_updates'
@@ -54,6 +56,15 @@ class Process:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
                 print (to_str(self.resolved[self.initial_pos.pos]) + " in " + str(self.remote[self.initial_pos.pos]) + " moves")
+                statistics = []
+                for rank in range(self.world_size):
+                    if rank == self.rank:
+                        stat = self.stats_dict
+                    else: 
+                        send_req = self.send(Job(Job.STATS), dest = rank)
+                        stat = self.recv(source = rank)
+                    statistics.append( (rank, stat) )
+                print statistics
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
@@ -95,6 +106,8 @@ class Process:
                                   # remaining.
         self._pending = {}        # job_id -> [ Job, GameStates, ... ]
                                   # Resolved.
+        self.stats_dict = {}            # Dictionary continue statistics for process.
+        self.stats_dict["num_lookups"] = 0
 
     def add_job(self, job):
         """
@@ -116,6 +129,7 @@ class Process:
         otherwise.
         """
         logging.info("Machine " + str(self.rank) + " looking up " + str(job.game_state.pos))
+        self.stats_dict["num_lookups"] += 1
         try:
             res = self.resolved[job.game_state.pos]
             rem = self.remote[job.game_state.pos]
@@ -167,6 +181,12 @@ class Process:
             self.send(new_job, dest = child.get_hash(self.world_size))
 
         self._update_id()
+
+    def stats(self, job):
+        """
+        Returns stats for this Process to the root Process.
+        """
+        self.send(self.stats_dict, dest = self.root)
 
     def check_for_updates(self, job):
         """
