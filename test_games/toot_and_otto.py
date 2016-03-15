@@ -1,19 +1,20 @@
 import numpy as np
 from numpy import *
+from mpi4py import MPI
 
 #Toot and Otto game implementation for Gamescrafters
 
 #defines the state object for the toot and otto game
 #state keeps track of 4 things:
 #the player whose turn it is, the board, and both players hands
-#additional methods are helper methods for the neccessary solver functions and 
+#additional methods are helper methods for the neccessary solver functions and
 class State(object):
     """Base State class"""
     """0 for blank space, 1 for T, 2 for O"""
     toot = np.array([1,2,2,1])
     otto = np.array([2,1,1,2])
-    board_dimension_height = 4
-    board_dimension_length = 6
+    board_dimension_height = 1
+    board_dimension_length = 4
     diagonal_connections_allowed = True
 
     def __init__(self, height = 4, length = 6):
@@ -41,7 +42,7 @@ class State(object):
     def print_board(self):
         """ Currently just printing the numpy array. """
         for i in range(self.board_dimension_height):
-            print self.pieces[i]
+            print(self.pieces[i])
 
     def board_is_full(self):
         """ Make the entries True if it has a 0 and False if it has 1.
@@ -75,8 +76,8 @@ class State(object):
                     if self.word_test(x+1, y-1, word, 1, -1, 1):
                         score[index] += 1
         return score
-            
-    #helper function for checkForWords      
+
+    #helper function for checkForWords
     def word_test(self, x, y, word, dx, dy, char_pos_in_word):
         if char_pos_in_word == 4:
             return True
@@ -91,7 +92,10 @@ class State(object):
 
 #assumes that player1 goes for toot and player2 goes for otto
 
-initial_position = State()
+def initial_position():
+    return State()
+
+board_state_element_type = MPI.INT
 
 #assumes that if the score is tied, continue playing no matter how many matches
 #takes in a state parameter which is a State object
@@ -164,29 +168,29 @@ def do_move(state, action):
 
 #helpful prints for reference, understanding the code, and debugging
 def example():
-    print 'the initial position is the following:'
+    print('the initial position is the following:')
     initial_position.print_board()
-    print 'hand1T=' + str(initial_position.hand1T)
-    print 'hand1O=' + str(initial_position.hand1O)
-    print 'hand2T=' + str(initial_position.hand2T)
-    print 'hand2O=' + str(initial_position.hand2O)
-    print 'firstPlayerTurn=' + str(initial_position.first_player_turn)
+    print('hand1T=' + str(initial_position.hand1T))
+    print('hand1O=' + str(initial_position.hand1O))
+    print('hand2T=' + str(initial_position.hand2T))
+    print('hand2O=' + str(initial_position.hand2O))
+    print('firstPlayerTurn=' + str(initial_position.first_player_turn))
     possible_actions = gen_moves(initial_position)
-    print 'these are the possible actions:'
-    print possible_actions
-    print 'primitive value:'
-    print primitive(initial_position)
+    print('these are the possible actions:')
+    print(possible_actions)
+    print('primitive value:')
+    print(primitive(initial_position))
 
     s = do_move(initial_position, possible_actions[6])
-    print 'this is the state after a move has been made'
+    print('this is the state after a move has been made')
     s.print_board()
-    print 'hand1T=' + str(s.hand1T)
-    print 'hand1O=' + str(s.hand1O)
-    print 'hand2T=' + str(s.hand2T)
-    print 'hand2O=' + str(s.hand2O)
-    print 'firstPlayerTurn=' + str(s.first_player_turn)
+    print('hand1T=' + str(s.hand1T))
+    print('hand1O=' + str(s.hand1O))
+    print('hand2T=' + str(s.hand2T))
+    print('hand2O=' + str(s.hand2O))
+    print('firstPlayerTurn=' + str(s.first_player_turn))
     possible_actions = gen_moves(s)
-    print 'New possible actions:'
-    print possible_actions
-    print 'primitive value:'
-    print primitive(s)
+    print('New possible actions:')
+    print(possible_actions)
+    print('primitive value:')
+    print(primitive(s))
