@@ -46,8 +46,6 @@ if args.numpy:
 # Set up our logging system
 logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=logging.WARNING)
 
-initial_position = src.utils.game_module.initial_position()
-
 process = Process(comm.Get_rank(), comm.Get_size(), comm, NP=args.numpy)
 if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)

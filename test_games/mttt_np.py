@@ -19,9 +19,9 @@ def gen_moves(state):
 	num2 = 0
 	for x in range(3):
 		for y in range(3):
-			if state[x][y] == 1:
+			if state[x, y] == 1:
 				num1 += 1
-			if state[x][y] == 2:
+			if state[x, y] == 2:
 				num2 += 1
 	if num1 > num2:
 		currPlayer = 2
