@@ -12,7 +12,6 @@ def initial_position():
 #action is tuple: (player, (x,y))
 #it returns a list of all valid action tuples
 def gen_moves(state):
-	print(str(state))
 	possibleActions = []
 	currPlayer = 1
 	#determine which players turn it is
