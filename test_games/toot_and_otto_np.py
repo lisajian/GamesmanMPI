@@ -1,196 +1,215 @@
+import gamesman
 import numpy as np
-from numpy import *
-from mpi4py import MPI
 
 #Toot and Otto game implementation for Gamescrafters
 
-#defines the state object for the toot and otto game
-#state keeps track of 4 things:
-#the player whose turn it is, the board, and both players hands
-#additional methods are helper methods for the neccessary solver functions and
-class State(object):
-    """Base State class"""
-    """0 for blank space, 1 for T, 2 for O"""
-    toot = np.array([1,2,2,1])
-    otto = np.array([2,1,1,2])
-    board_dimension_height = 1
-    board_dimension_length = 4
-    diagonal_connections_allowed = True
+LOSS, WIN, TIE, DRAW, UNDECIDED = "LOSS", "WIN", "TIE", "DRAW", "UNDECIDED"
 
-    def __init__(self, height = 4, length = 6):
-        self.first_player_turn = True
-        self.board_dimension_height = height
-        self.board_dimension_length = length
-        self.pieces = np.zeros((self.board_dimension_height,self.board_dimension_length), dtype = int)
-        self.hand1T = 6
-        self.hand1O = 6
-        self.hand2T = 6
-        self.hand2O = 6
+toot = np.array([1,2,2,1])
+otto = np.array([2,1,1,2])
 
-    #returns a new State object that is a copy of self
-    def state_copy(self):
-        copy = State()
-        copy.first_player_turn = self.first_player_turn
-        copy.pieces = self.pieces.copy()
-        copy.hand1T = self.hand1T
-        copy.hand1O = self.hand1O
-        copy.hand2T = self.hand2T
-        copy.hand2O = self.hand2O
-        return copy
+height = 4
+length = 6
 
-    #prints the current board with helpful indices on the left and the bottom
-    def print_board(self):
-        """ Currently just printing the numpy array. """
-        for i in range(self.board_dimension_height):
-            print(self.pieces[i])
+initial_position = np.zeros((height+1,length), dtype = np.int8)
+# top row is number of T for P1, O for P1, T for P2, O for P3, 
+# which player is toot, and the first player
+initial_position[0,] = [6, 6, 6, 6, 1, 1]
 
-    def board_is_full(self):
-        """ Make the entries True if it has a 0 and False if it has 1.
-            Then sum up the booleans. If 0, then the board is full. """
-        bool_pieces = (self.pieces == 0)
-        return bool_pieces.sum() == 0
+def print_board(board):
+	#prints the current board with helpful indices on the left and the bottom
+	for i in range(1,height+1):
+		print board[i]
 
-    #returns the score dictionary for the number of words, toot and otto
-    def check_for_words(self):
-        # first entry is number of toot's, second is otto's
-        score = np.zeros(2, dtype = int)
-        for x in range(self.board_dimension_height):
-            for y in range(self.board_dimension_length):
-                if self.pieces[x,y] != 0:
-                    word = None
-                    if self.pieces[x,y] == 1:
-                        word = State.toot
-                        index = 0
-                    elif self.pieces[x,y] == 2:
-                        word = State.otto
-                        index = 1
-                    if word is None:
-                        continue
+# def board_is_full(board):
+# 	bool_pieces = (board[1:height+1,]  == 0)
+# 	return bool_pieces.sum() == 0
 
-                    if self.word_test(x+1, y, word, 1, 0, 1):
-                        score[index] += 1
-                    if self.word_test(x, y+1, word, 0, 1, 1):
-                        score[index] += 1
-                    if self.word_test(x+1, y+1, word, 1, 1, 1):
-                        score[index] += 1
-                    if self.word_test(x+1, y-1, word, 1, -1, 1):
-                        score[index] += 1
-        return score
+def board_is_full(board):
+	return np.count_nonzero(board[1:height+1,:]) == height*length
 
-    #helper function for checkForWords
-    def word_test(self, x, y, word, dx, dy, char_pos_in_word):
-        if char_pos_in_word == 4:
-            return True
-        if x >= self.board_dimension_height or y >= self.board_dimension_length or x < 0 or y < 0:
-            return False
-        if self.pieces[x,y] != word[char_pos_in_word]:
-            return False
-        return self.word_test(x+dx, y+dy, word, dx, dy, char_pos_in_word+1)
+def check_for_words(board):
+	# first entry is number of toot's, second is otto's
+	score = np.zeros(2, dtype = np.int8)
+	for x in range(1,height+1):
+		for y in range(length):
+			if board[x,y] != 0:
+				word = None
+				if board[x,y] == 1:
+					word = toot
+					index = 0
+				elif board[x,y] == 2:
+					word = otto
+					index = 1
+				if word is None:
+					continue
 
+				if word_test(board, x+1, y, word, 1, 0, 1):
+					score[index] += 1
+				if word_test(board, x, y+1, word, 0, 1, 1):
+					score[index] += 1
+				if word_test(board, x+1, y+1, word, 1, 1, 1):
+					score[index] += 1
+				if word_test(board, x+1, y-1, word, 1, -1, 1):
+					score[index] += 1
+	return score
+
+def word_test(board, x, y, word, dx, dy, char_pos_in_word):
+	if char_pos_in_word == 4:
+		return True
+	if x >= height+1 or y >= length or x < 1 or y < 0:
+		return False
+	if board[x,y] != word[char_pos_in_word]:
+		return False
+	return word_test(board, x+dx, y+dy, word, dx, dy, char_pos_in_word+1)
 
 #Implementation of the neccessary functions for the solver
 
 #assumes that player1 goes for toot and player2 goes for otto
 
-def initial_position():
-    return State()
-
-board_state_element_type = MPI.INT
-
 #assumes that if the score is tied, continue playing no matter how many matches
 #takes in a state parameter which is a State object
 #returns a string of the options win, loss, tie, draw, unkwown
 
-def primitive(state):
-    score = state.check_for_words()
-    if score[1] >= 1 and score [0] >= 1:
-        return 'tie'
-    if score[0] >= 1:
-        print("toot wins")
-        if state.first_player_turn:
-            return 'win'
-        return 'loss'
-    elif score[0] >= 1:
-        print("otto wins")
-        if state.first_player_turn:
-            return 'loss'
-        return 'win'
-    if state.board_is_full():
-        return 'tie'
-    else:
-        return 'unknown'
+def primitive(board):
+	score = check_for_words(board)
+	if score[1] >= 1 and score[0] >= 1:
+		return TIE
+	if score[0] >= 1:
+		print("toot wins")
+		if board[0,5] == 1:
+			return WIN
+		return LOSS
+	elif score[0] >= 1:
+		print("otto wins")
+		if board[0,5] == 1:
+			return LOSS
+		return WIN
+	if board_is_full(board):
+		return TIE
+	else:
+		return UNDECIDED
 
 #action is defined as a tuple with the letter, and a board location
 #example of an action: ("T", (2,3))
 
 #takes in the parameter state, a State object
 #returns a list of actions that are valid to be applied to the parameter state
-def gen_moves(state):
-    hand = np.append(state.hand2T,state.hand2O)
-    if state.first_player_turn:
-        hand = np.append(state.hand1T,state.hand1O)
+def gen_moves(board):
+	hand = np.append(board[0,2],board[0,3])
+	if board[0,4] == 1:
+		hand = np.append(board[0,0],board[0,1])
 
-    possible_actions = []
-    for y in range(State.board_dimension_length):
-        x = 0
-        while x < State.board_dimension_height and state.pieces[3-x,y] != 0:
-            x += 1
-        if x < State.board_dimension_height:
-            for i in range(2):
-                if hand[i]>0:
-                    possible_actions.append((i+1, (3-x,y)))
-    return possible_actions
+	possible_actions = []
+	for y in range(6):
+		x = 0
+		while x < 4 and board[4-x,y] != 0:
+			x += 1
+		if x < 4:
+			for i in range(2):
+				if hand[i]>0:
+					possible_actions.append((i+1, (4-x,y)))
+
+	return possible_actions
 
 #returns the successor given by applying the parameter action to the parameter state
 #the parameter action is a tuple with the letter, and a board location
 #the parameter state is a State object
 #must pass in a valid state and a valid action for that state, does not check
-def do_move(state, action):
-    successor = state.state_copy()
-    piece, loc = action
+def do_move(board, action):
+	valid_moves = gen_moves(board)
+	if action not in valid_moves:
+		print 'INVALID MOVE'
+		return board
 
-    successor.first_player_turn = not state.first_player_turn
-    successor.pieces[loc] = piece
-    if state.first_player_turn and piece == 1:
-        successor.hand1T -= 1
-    elif state.first_player_turn and piece == 0:
-        successor.hand1O -= 1
-    elif not state.first_player_turn and piece == 0:
-        successor.hand2T -= 1
-    else:
-        successor.hand2O -= 1
-    return successor
+	piece, loc = action
 
+	board[loc] = piece
+	if board[0,4]==1 and piece == 1:
+		board[0,0] -= 1
+	elif board[0,4]==1 and piece == 2:
+		board[0,1] -= 1
+	elif board[0,4]==2 and piece == 1:
+		board[0,2] -= 1
+	else:
+		board[0,3] -= 1
 
+	board[0,4] = 1 + (board[0,4] % 2)
 
-
+	return board
 
 
 #helpful prints for reference, understanding the code, and debugging
 def example():
-    print('the initial position is the following:')
-    initial_position.print_board()
-    print('hand1T=' + str(initial_position.hand1T))
-    print('hand1O=' + str(initial_position.hand1O))
-    print('hand2T=' + str(initial_position.hand2T))
-    print('hand2O=' + str(initial_position.hand2O))
-    print('firstPlayerTurn=' + str(initial_position.first_player_turn))
-    possible_actions = gen_moves(initial_position)
-    print('these are the possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(initial_position))
+	print 'the initial position is the following:'
+	print_board(initial_position)
+	print 'hand1T=' + str(initial_position[0,0])
+	print 'hand1O=' + str(initial_position[0,1])
+	print 'hand2T=' + str(initial_position[0,2])
+	print 'hand2O=' + str(initial_position[0,3])
+	print 'firstPlayerTurn=' + str(initial_position[0,4]==1)
+	possible_actions = gen_moves(initial_position)
+	print 'these are the possible actions:'
+	print possible_actions
+	print 'primitive value:'
+	print primitive(initial_position)
 
-    s = do_move(initial_position, possible_actions[6])
-    print('this is the state after a move has been made')
-    s.print_board()
-    print('hand1T=' + str(s.hand1T))
-    print('hand1O=' + str(s.hand1O))
-    print('hand2T=' + str(s.hand2T))
-    print('hand2O=' + str(s.hand2O))
-    print('firstPlayerTurn=' + str(s.first_player_turn))
-    possible_actions = gen_moves(s)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(s))
+	board_turn_1 = do_move(initial_position, possible_actions[6])
+	print 'this is the state after a move has been made'
+	print_board(board_turn_1)
+	print 'hand1T=' + str(board_turn_1[0,0])
+	print 'hand1O=' + str(board_turn_1[0,1])
+	print 'hand2T=' + str(board_turn_1[0,2])
+	print 'hand2O=' + str(board_turn_1[0,3])
+	print 'firstPlayerTurn=' + str(board_turn_1[0,4]==1)
+	possible_actions = gen_moves(board_turn_1)
+	print 'New possible actions:'
+	print possible_actions
+	print 'primitive value:'
+	print primitive(board_turn_1)
+
+	board = do_move(board_turn_1, possible_actions[4])
+	print 'this is the state after a move has been made'
+	print_board(board)
+	print 'hand1T=' + str(board[0,0])
+	print 'hand1O=' + str(board[0,1])
+	print 'hand2T=' + str(board[0,2])
+	print 'hand2O=' + str(board[0,3])
+	print 'firstPlayerTurn=' + str(board[0,4]==1)
+	possible_actions = gen_moves(board)
+	print 'New possible actions:'
+	print possible_actions
+	print 'primitive value:'
+	print primitive(board)
+
+	board = do_move(board, possible_actions[4])
+	print 'this is the state after a move has been made'
+	print_board(board)
+	print 'hand1T=' + str(board[0,0])
+	print 'hand1O=' + str(board[0,1])
+	print 'hand2T=' + str(board[0,2])
+	print 'hand2O=' + str(board[0,3])
+	print 'firstPlayerTurn=' + str(board[0,4]==1)
+	possible_actions = gen_moves(board)
+	print 'New possible actions length:'
+	print len(possible_actions)
+	print 'primitive value:'
+	print primitive(board)
+
+	board = do_move(board, possible_actions[4])
+	print 'this is the state after a move has been made'
+	print_board(board)
+	print 'hand1T=' + str(board[0,0])
+	print 'hand1O=' + str(board[0,1])
+	print 'hand2T=' + str(board[0,2])
+	print 'hand2O=' + str(board[0,3])
+	print 'firstPlayerTurn=' + str(board[0,4]==1)
+	possible_actions = gen_moves(board)
+	print 'New possible actions length:'
+	print len(possible_actions)
+	print 'primitive value:'
+	print primitive(board)
+
+
+
+
