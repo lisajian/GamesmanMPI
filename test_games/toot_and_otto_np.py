@@ -1,5 +1,5 @@
-import gamesman
 import numpy as np
+from mpi4py import MPI
 
 #Toot and Otto game implementation for Gamescrafters
 
@@ -11,15 +11,20 @@ otto = np.array([2,1,1,2])
 height = 4
 length = 6
 
-initial_position = np.zeros((height+1,length), dtype = np.int8)
-# top row is number of T for P1, O for P1, T for P2, O for P3, 
-# which player is toot, and the first player
-initial_position[0,] = [6, 6, 6, 6, 1, 1]
+board_state_element_type = MPI.CHAR
+
+def initial_position():
+	initial_position = np.zeros((height+1,length), dtype = np.int8)
+	# top row is number of T for P1, O for P1, T for P2, O for P3,
+	# which player is toot, and the first player
+	initial_position[0,] = [6, 6, 6, 6, 1, 1]
+	return initial_position
+
 
 def print_board(board):
 	#prints the current board with helpful indices on the left and the bottom
 	for i in range(1,height+1):
-		print board[i]
+		print(str(board[i]))
 
 # def board_is_full(board):
 # 	bool_pieces = (board[1:height+1,]  == 0)
@@ -119,7 +124,7 @@ def gen_moves(board):
 def do_move(board, action):
 	valid_moves = gen_moves(board)
 	if action not in valid_moves:
-		print 'INVALID MOVE'
+		print('INVALID MOVE')
 		return board
 
 	piece, loc = action
@@ -140,19 +145,20 @@ def do_move(board, action):
 
 
 #helpful prints for reference, understanding the code, and debugging
+"""
 def example():
-	print 'the initial position is the following:'
+	print('the initial position is the following:')
 	print_board(initial_position)
-	print 'hand1T=' + str(initial_position[0,0])
-	print 'hand1O=' + str(initial_position[0,1])
-	print 'hand2T=' + str(initial_position[0,2])
-	print 'hand2O=' + str(initial_position[0,3])
-	print 'firstPlayerTurn=' + str(initial_position[0,4]==1)
+	print('hand1T=' + str(initial_position[0,0]))
+	print('hand1O=' + str(initial_position[0,1]))
+	print('hand2T=' + str(initial_position[0,2]))
+	print('hand2O=' + str(initial_position[0,3]))
+	print('firstPlayerTurn=' + str(initial_position[0,4]==1)
 	possible_actions = gen_moves(initial_position)
-	print 'these are the possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(initial_position)
+	print('these are the possible actions:')
+	print(str(possible_actions))
+	print('primitive value:')
+	print(primitive(initial_position))
 
 	board_turn_1 = do_move(initial_position, possible_actions[6])
 	print 'this is the state after a move has been made'
@@ -209,7 +215,4 @@ def example():
 	print len(possible_actions)
 	print 'primitive value:'
 	print primitive(board)
-
-
-
-
+"""
