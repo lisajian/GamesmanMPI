@@ -10,10 +10,12 @@ height = 4
 length = 6
 
 initial_pos = np.zeros((height+1,length), dtype = np.int8)
-# top row is number of T for P1, O for P1, T for P2, O for P3, 
+# top row is number of T for P1, O for P1, T for P2, O for P3,
 # which players turn it is
 # assumes that player 1 always goes for toot
 initial_pos[0,] = [6, 6, 6, 6, 1, 1]
+
+board_state_element_type = MPI.CHAR
 
 def initial_position():
 	return initial_pos
@@ -138,6 +140,7 @@ def do_move(board, action):
 
 
 #helpful prints for reference, understanding the code, and debugging
+"""
 def example():
 	print 'the initial position is the following:'
 	print_board(initial_pos)
@@ -221,7 +224,4 @@ def example():
 	print len(possible_actions)
 	print 'primitive value:'
 	print primitive(board)
-
-
-
-
+"""

@@ -2,10 +2,12 @@ import src.utils
 from mpi4py import MPI
 import numpy as np
 
-#state is simply a 3x3 numpy array 
+#state is simply a 3x3 numpy array
 #0 is empty, 1 and 2 correspond to the players
 def initial_position():
 	return np.zeros((3,3), dtype=np.int8)
+
+board_state_element_type = MPI.CHAR
 
 #action is tuple: (player, (x,y))
 #it returns a list of all valid action tuples
@@ -82,4 +84,3 @@ def primitiveLastAction(state, lastAction):
 	if np.count_nonzero(state) == 0:
 		return src.utils.TIE
 	return src.utils.UNDECIDED
-
