@@ -39,7 +39,7 @@ def validate(mod):
         getattr(mod, 'gen_moves')
         getattr(mod, 'primitive')
     except AttributeError as e:
-        print "Could not find method", e.args[0]
+        print("Could not find method", e.args[0])
         raise
 
 # Make sure the game is properly defined
