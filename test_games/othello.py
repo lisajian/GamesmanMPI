@@ -18,9 +18,9 @@ def initial_position():
 
 def print_board(board):
 	#prints the current board and players turn
-	print '\n', board[1:,:]
-	print "Player's turn: ", board[0][0]
-	print "Num passes: ", board[0,1]
+	print('\n', board[1:,:])
+	print("Player's turn: ", board[0][0])
+	print("Num passes: ", board[0,1])
 
 def primitive(board):
 	def determine_winner():
@@ -142,59 +142,58 @@ def do_move(board, move):
 
 
 def example():
-	print 'the initial position is the following:'
+	print('the initial position is the following:')
 	print_board(initial_pos)
 	possible_actions = gen_moves(initial_pos)
-	print 'these are the possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(initial_pos)
+	print('these are the possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(initial_pos))
 
 	board_turn_1 = do_move(initial_pos, possible_actions[2])
 	print_board(board_turn_1)
 	possible_actions = gen_moves(board_turn_1)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board_turn_1)
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board_turn_1))
 
 	board = do_move(board_turn_1, possible_actions[0])
 	print_board(board)
 	possible_actions = gen_moves(board)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board)
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board))
 
 	board = do_move(board, possible_actions[3])
 	print_board(board)
 	possible_actions = gen_moves(board)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board)
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board))
 
 	board = do_move(board, possible_actions[1])
 	print_board(board)
 	possible_actions = gen_moves(board)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board)
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board))
 
 	board = do_move(board, possible_actions[2])
 	print_board(board)
 	possible_actions = gen_moves(board)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board)
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board))
 
 	board = do_move(board, possible_actions[4])
 	print_board(board)
 	possible_actions = gen_moves(board)
-	print 'New possible actions:'
-	print possible_actions
-	print 'primitive value:'
-	print primitive(board)
-
+	print('New possible actions:')
+	print(possible_actions)
+	print('primitive value:')
+	print(primitive(board))
