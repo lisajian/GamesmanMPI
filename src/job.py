@@ -16,6 +16,9 @@ class Job:
     DISTRIBUTE        = 4
     CHECK_FOR_UPDATES = 5
 
+    # Special number associated with the initial job id.
+    INITIAL_JOB_ID = 0
+
     def _assign_priority(self):
         self.priority = self.job_type
 

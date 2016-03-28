@@ -21,8 +21,7 @@ def print_board(board):
 	#prints the current board and players turn
 	print('\n', board[1:,:])
 	print("Player's turn: ", board[0][0])
-	print("Num passes: ", board[0,1])
-
+	print(" 
 def primitive(board):
 	def determine_winner():
 		black_count = 0
