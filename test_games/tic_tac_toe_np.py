@@ -2,9 +2,7 @@ import src.utils
 from mpi4py import MPI
 import numpy as np
 
-board_state_element_type = MPI.CHAR
-
-#state is simply a 3x3 numpy array
+#state is simply a 3x3 numpy array 
 #0 is empty, 1 and 2 correspond to the players
 def initial_position():
 	return np.zeros((3,3), dtype=np.int8)
@@ -19,9 +17,9 @@ def gen_moves(state):
 	num2 = 0
 	for x in range(3):
 		for y in range(3):
-			if state[x, y] == 1:
+			if state[x][y] == 1:
 				num1 += 1
-			if state[x, y] == 2:
+			if state[x][y] == 2:
 				num2 += 1
 	if num1 > num2:
 		currPlayer = 2
@@ -84,3 +82,4 @@ def primitiveLastAction(state, lastAction):
 	if np.count_nonzero(state) == 0:
 		return src.utils.TIE
 	return src.utils.UNDECIDED
+
