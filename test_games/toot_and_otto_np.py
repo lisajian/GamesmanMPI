@@ -97,9 +97,9 @@ def primitive(board):
 #takes in the parameter state, a State object
 #returns a list of actions that are valid to be applied to the parameter state
 def gen_moves(board):
-    hand = np.append(board[0,2],board[0,3])
+    hand = np.array(board[0,2], board[0,3])
     if board[0,4] == 1:
-        hand = np.append(board[0,0],board[0,1])
+        hand = np.array(board[0,0], board[0,1])
 
     possible_actions = []
     for y in range(length):
