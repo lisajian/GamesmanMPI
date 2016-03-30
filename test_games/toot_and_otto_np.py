@@ -20,14 +20,6 @@ board_state_element_type = MPI.CHAR
 def initial_position():
     return initial_pos
 
-def print_board(board):
-    #prints the current board with helpful indices on the left and the bottom
-    print(board[1:,:])
-
-# def board_is_full(board):
-#   bool_pieces = (board[1:height+1,]  == 0)
-#   return bool_pieces.sum() == 0
-
 def board_is_full(board):
     return np.count_nonzero(board[1:height+1,:]) == height*length
 
@@ -97,9 +89,9 @@ def primitive(board):
 #takes in the parameter state, a State object
 #returns a list of actions that are valid to be applied to the parameter state
 def gen_moves(board):
-    hand = np.append(board[0,2],board[0,3])
+    hand = np.array(board[0,2], board[0,3])
     if board[0,4] == 1:
-        hand = np.append(board[0,0],board[0,1])
+        hand = np.array(board[0,0], board[0,1])
 
     possible_actions = []
     for y in range(length):
