@@ -22,7 +22,7 @@ Also included is a very simple testing script, `testing.sh`, which allows you to
 ```
 bash testing.sh <your game file> <min # of processes> <max # of processes> <# of runs per process> <-l> <-np>
 ```
-Where the `-l` tag includes testing with the local solver, and the `-np` flag runs the process with NumPy optimizations. Note that flags can occur in any order. To test Four-To-One with process counts ranging from 4 to 12, running each option 3 times, including the local solver, with the NumPy optimization, we would run
+Where the `-l` tag includes testing with the local solver, and the `-np` flag runs the process with NumPy optimizations. Flags can occur in any order. To test Four-To-One with process counts ranging from 4 to 12, running each option 3 times, including the local solver, with the NumPy optimization, we would run
 ```
 bash testing.sh test_games/four_to_one.py 4 12 3 -l -np
 ```
