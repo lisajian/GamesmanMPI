@@ -11,7 +11,7 @@ parser.add_argument("game_file", help="game to solve for")
 parser.add_argument("-np", "--numpy", help="optimize for numpy array usage",
                                action="store_true")
 
-parser.add_argument("--debug", help="Enables or disables logging",
+parser.add_argument("--debug", help="enables or disables logging",
                                action="store_true")
 
 args = parser.parse_args()
