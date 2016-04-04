@@ -9,15 +9,13 @@ otto = np.array([2,1,1,2])
 height = 4
 length = 6
 
-initial_pos = np.zeros((height+1,length), dtype = np.int8)
-# top row is number of T for P1, O for P1, T for P2, O for P3,
-# which players turn it is
-# assumes that player 1 always goes for toot
-initial_pos[0,] = [6, 6, 6, 6, 1, 1]
-
 board_state_element_type = MPI.CHAR
 
+# top row is number of T for P1, O for P1, T for P2, O for P3, which players turn it is, constant 1
+# assumes that player 1 always goes for toot
 def initial_position():
+    initial_pos = np.zeros((height+1,length), dtype = np.int8)
+    initial_pos[0,] = [6, 6, 6, 6, 1, 1]
     return initial_pos
 
 def board_is_full(board):
@@ -59,22 +57,17 @@ def word_test(board, x, y, word, dx, dy, char_pos_in_word):
     return word_test(board, x+dx, y+dy, word, dx, dy, char_pos_in_word+1)
 
 #assumes that player1 goes for toot and player2 goes for otto
-
-#assumes that if
 #takes in a state parameter which is a numpy array
-#returns a string of the options win, loss, tie, draw, unkwown
-
+#returns src.utils of the options win, loss, tie, draw, undecided
 def primitive(board):
     score = check_for_words(board)
     if score[1] >= 1 and score[0] >= 1:
         return src.utils.TIE
     if score[0] >= 1:
-        print("toot wins")
         if board[0,4] == 1:
             return src.utils.WIN
         return src.utils.LOSS
     elif score[0] >= 1:
-        print("otto wins")
         if board[0,4] == 1:
             return src.utils.LOSS
         return src.utils.WIN
@@ -85,13 +78,12 @@ def primitive(board):
 
 #action is defined as a tuple with the letter, and a board location
 #example of an action: (2, (2,3))
-
-#takes in the parameter state, a State object
+#takes in the parameter state, a 2d numpy array
 #returns a list of actions that are valid to be applied to the parameter state
 def gen_moves(board):
-    hand = np.array(board[0,2], board[0,3])
+    hand = np.array([board[0,2], board[0,3]])
     if board[0,4] == 1:
-        hand = np.array(board[0,0], board[0,1])
+        hand = np.array([board[0,0], board[0,1]])
 
     possible_actions = []
     for y in range(length):
@@ -106,14 +98,9 @@ def gen_moves(board):
 
 #returns the successor given by applying the parameter action to the parameter state
 #the parameter action is a tuple with the letter, and a board location
-#the parameter state is a State object
+#the parameter state is a 2d numpy array
 #must pass in a valid state and a valid action for that state, does not check
 def do_move(board, action):
-    # valid_moves = gen_moves(board)
-    # if action not in valid_moves:
-    #   print 'INVALID MOVE'
-    #   return board
-
     successor = np.copy(board)
     piece, loc = action
 
@@ -132,7 +119,6 @@ def do_move(board, action):
 
 
 #helpful prints for reference, understanding the code, and debugging
-"""
 def example():
     print 'the initial position is the following:'
     print_board(initial_pos)
@@ -216,4 +202,3 @@ def example():
     print len(possible_actions)
     print 'primitive value:'
     print primitive(board)
-"""
