@@ -8,7 +8,7 @@ NP                              = None # This is initialized in solve_launcher.p
 
 # Used for logging/display purposes
 STATE_MAP       = {0:"win", 1:"loss", 2:"tie", 3:"draw", 4:"undecided"}
-JOB_TYPE_LIST   = ["finished", "lookup", "resolve", "send back", "distribute", "check for updates"]
+JOB_TYPE_MAP   = {0:"finished", 1:"lookup", 2:"resolve", 3:"send back", 4:"distribute", 5:"check for updates"}
 
 
 """
