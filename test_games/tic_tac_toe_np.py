@@ -5,14 +5,13 @@ import numpy as np
 #state is simply a 3x3 numpy array
 #0 is empty, 1 and 2 correspond to the players
 def initial_position():
-    return np.zeros((3,3), dtype=np.int8).reshape(9,)
+    return np.zeros((3,3), dtype=np.int8)
 
 board_state_element_type = MPI.CHAR
 
 #action is tuple: (player, (x,y))
 #it returns a list of all valid action tuples
 def gen_moves(state):
-    state = state.reshape(3,3)
     possibleActions = []
     currPlayer = 1
     #determine which players turn it is
@@ -36,14 +35,13 @@ def gen_moves(state):
 #executes the move given by parameter action on the parameter state
 #returns the successor state generated
 def do_move(state, action):
-    successor = np.copy(state.reshape(3,3))
+    successor = np.copy(state)
     player, loc = action
     successor[loc[0],loc[1]] = player
-    return successor.reshape(9,)
+    return successor
 
 #returns the gamesman values of WIN, TIE, or UNDECIDED depending on the state
 def primitive(state):
-    state = state.reshape(3,3)
     def connectionTest(x, y, player, dx, dy, numPiecesTillConnection):
         if numPiecesTillConnection <= 0:
             return True
