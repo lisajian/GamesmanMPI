@@ -216,8 +216,8 @@ class Process:
         """
         Private method that helps reduce in resolve.
         """
-        nums = {LOSS : 0, DRAW : 1, TIE : 2, WIN : 3}
-        states = (LOSS, DRAW, TIE, WIN)
+        nums = {WIN : 0, DRAW : 1, TIE : 2, LOSS : 3}
+        states = (WIN, DRAW, TIE, LOSS)
 
         if res2 == None:
             return negate(res1)
