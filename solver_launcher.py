@@ -14,6 +14,9 @@ parser.add_argument("-np", "--numpy", help="optimize for numpy array usage",
 parser.add_argument("--debug", help="enables or disables logging",
                                action="store_true")
 
+parser.add_argument("-s", "--symmetry", help="optimize symmetrically equivalent board states",
+                               action="store_true")
+
 args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
