@@ -235,9 +235,9 @@ class Process:
             return GameState(None, rem1.remoteness, rem1.state)
 
         if rem1.state == WIN or rem2.state == WIN:
-            return GameState(None, max(rem1.remoteness, rem2.remoteness), WIN)
+            return GameState(None, min(rem1.remoteness, rem2.remoteness), WIN)
         elif rem2.state == LOSS and rem1.state == LOSS:
-            return GameState(None, min(rem1.remoteness, rem2.remoteness), LOSS)
+            return GameState(None, max(rem1.remoteness, rem2.remoteness), LOSS)
         else:
             # Use rem1.state by default, but rem2.state should work too.
             return GameState(None, max(rem1.remoteness, rem2.remoteness), rem1.state)
