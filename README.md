@@ -17,6 +17,9 @@ Your game file must follow the conventions outlined in the API
 ### <a name="optimize-desc"></a>(Optional) Optimization with NumPy
 Communication between processes can be greatly sped up if board state are stored as certain datatypes. Specifically, if your Gamestate object is a NumPy array in which the elements are of an [MPI Elementary data type](https://computing.llnl.gov/tutorials/mpi/#Routine_Arguments "MPI Primitives"), you can use the `-np` or `--numpy` flag to run an optimized version of the solver. Note that you must add an additional method to your game file to specify the specific data type you are using. See [API Description](#optimize-api)
 
+### <a name="sym-desc"></a>(Optional) Optimization with Symmetry
+The number of total board states for the solver to evaluate can be reduced by recognizing that some board states are symmetrically equivalent to others. For example, Tic Tac Toe has rotational and mirror symmetrically equivalent positions for any given board state. Connect Four, on the other hand, only has equivalent positions in the horizontal mirror plane. In order to make use of the optimization, define a function `symmetry_functions()` in your game module. See [API Description](#sym-api) for more details.
+
 ## Testing
 Also included is a very simple testing script, `testing.sh`, which allows you to time the game solver within a certain range of process counts, and also compare that to local solver performance. Use the following syntax:
 ```
@@ -91,10 +94,23 @@ def primitive(x):
         return LOSS
 ```
 
-#### <a name="optimize-api"></a> board_state_element_type (Optional)
-The type associated with the NumPy arrays used to represent a board state. See [optimization](#optimize-desc)
-
+#### <a name="optimize-api"></a> board_state_element_type (Optional, see [optimization](#optimize-desc))
+The type associated with the NumPy arrays used to represent a board state.
 ###### Example
 ```python
 board_state_element_type = MPI.INT
+```
+
+#### <a name="sym-api"></a> board_state_element_type (Optional, see [symmetry](#sym-desc))
+###### Parameters
+- returns: list of tuples
+  - The first element of each tuple should be a function that takes a board state as an argument and returns a symmetrically equivalent state.
+  - The second element of each each tuple should be a positive non-zero integer that represents the number of times the respective symmetry function should be applied before you "loop back" to your original state. For example, rotation by 90 degrees can be executed four times before you return to your original position.
+
+###### Example
+```python
+def symmetry_functions():
+    rotatation = lambda board: np.rot90(board, k=1)
+    mirror_hoz = lambda board: board[:,::-1]
+    return [(rotation, 4), (mirror_hoz, 2)]
 ```
