@@ -11,6 +11,14 @@ length = 6
 
 board_state_element_type = MPI.CHAR
 
+def print_board(board):
+    print board[1:,:]
+    print 'hand1T=' + str(board[0,0])
+    print 'hand1O=' + str(board[0,1])
+    print 'hand2T=' + str(board[0,2])
+    print 'hand2O=' + str(board[0,3])
+    print 'firstPlayerTurn=' + str(board[0,4]==1)
+
 # top row is number of T for P1, O for P1, T for P2, O for P3, which players turn it is, constant 1
 # assumes that player 1 always goes for toot
 def initial_position():
@@ -117,16 +125,15 @@ def do_move(board, action):
     successor[0,4] = 1 + (successor[0,4] % 2)
     return successor
 
+def symmetry_functions():
+    f = lambda state: np.vstack((state[0,:], np.fliplr(state[1:,:])))
+    return [(f, 2)]
 
 #helpful prints for reference, understanding the code, and debugging
 def example():
     print 'the initial position is the following:'
+    initial_pos = initial_position()
     print_board(initial_pos)
-    print 'hand1T=' + str(initial_pos[0,0])
-    print 'hand1O=' + str(initial_pos[0,1])
-    print 'hand2T=' + str(initial_pos[0,2])
-    print 'hand2O=' + str(initial_pos[0,3])
-    print 'firstPlayerTurn=' + str(initial_pos[0,4]==1)
     possible_actions = gen_moves(initial_pos)
     print 'these are the possible actions:'
     print possible_actions
@@ -136,11 +143,6 @@ def example():
     board_turn_1 = do_move(initial_pos, possible_actions[6])
     print 'this is the state after a move has been made'
     print_board(board_turn_1)
-    print 'hand1T=' + str(board_turn_1[0,0])
-    print 'hand1O=' + str(board_turn_1[0,1])
-    print 'hand2T=' + str(board_turn_1[0,2])
-    print 'hand2O=' + str(board_turn_1[0,3])
-    print 'firstPlayerTurn=' + str(board_turn_1[0,4]==1)
     possible_actions = gen_moves(board_turn_1)
     print 'New possible actions:'
     print possible_actions
@@ -150,11 +152,6 @@ def example():
     board = do_move(board_turn_1, possible_actions[4])
     print 'this is the state after a move has been made'
     print_board(board)
-    print 'hand1T=' + str(board[0,0])
-    print 'hand1O=' + str(board[0,1])
-    print 'hand2T=' + str(board[0,2])
-    print 'hand2O=' + str(board[0,3])
-    print 'firstPlayerTurn=' + str(board[0,4]==1)
     possible_actions = gen_moves(board)
     print 'New possible actions:'
     print possible_actions
@@ -164,11 +161,6 @@ def example():
     board = do_move(board, possible_actions[5])
     print 'this is the state after a move has been made'
     print_board(board)
-    print 'hand1T=' + str(board[0,0])
-    print 'hand1O=' + str(board[0,1])
-    print 'hand2T=' + str(board[0,2])
-    print 'hand2O=' + str(board[0,3])
-    print 'firstPlayerTurn=' + str(board[0,4]==1)
     possible_actions = gen_moves(board)
     print 'New possible actions length:'
     print len(possible_actions)
@@ -178,11 +170,6 @@ def example():
     board = do_move(board, possible_actions[5])
     print 'this is the state after a move has been made'
     print_board(board)
-    print 'hand1T=' + str(board[0,0])
-    print 'hand1O=' + str(board[0,1])
-    print 'hand2T=' + str(board[0,2])
-    print 'hand2O=' + str(board[0,3])
-    print 'firstPlayerTurn=' + str(board[0,4]==1)
     possible_actions = gen_moves(board)
     print 'New possible actions length:'
     print len(possible_actions)
@@ -192,11 +179,6 @@ def example():
     board = do_move(board, possible_actions[4])
     print 'this is the state after a move has been made'
     print_board(board)
-    print 'hand1T=' + str(board[0,0])
-    print 'hand1O=' + str(board[0,1])
-    print 'hand2T=' + str(board[0,2])
-    print 'hand2O=' + str(board[0,3])
-    print 'firstPlayerTurn=' + str(board[0,4]==1)
     possible_actions = gen_moves(board)
     print 'New possible actions length:'
     print len(possible_actions)

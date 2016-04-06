@@ -2,6 +2,8 @@ import src.utils
 from mpi4py import MPI
 import numpy as np
 
+#feel free to adjust height and length to reduce problem size
+#keep the board square when using symmetry
 height, length = 8, 8
 
 def initial_position():
@@ -19,9 +21,9 @@ board_state_element_type = MPI.CHAR
 
 def print_board(board):
     #prints the current board and players turn
-    print('\n', board[1:,:])
+    print board[1:,:]
     print("Player's turn: ", board[0][0])
-    print(" ")
+
 def primitive(board):
     def determine_winner():
         black_count = 0
@@ -139,7 +141,9 @@ def do_move(board, move):
     flip_pieces(successor, x, y)
     return successor
 
-
+def symmetry_functions():
+    f = lambda state: np.vstack((state[0,:], np.rot90(state[1:,:])))
+    return [(f, 4)]
 
 def example():
     print('the initial position is the following:')
