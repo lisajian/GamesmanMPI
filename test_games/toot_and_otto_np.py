@@ -126,7 +126,8 @@ def do_move(board, action):
     return successor
 
 def symmetry_functions():
-    return (np.fliplr, 2)
+    f = lambda state: np.vstack((state[0,:], np.fliplr(state[1:,:])))
+    return [(f, 2)]
 
 #helpful prints for reference, understanding the code, and debugging
 def example():
