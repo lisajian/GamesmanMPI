@@ -27,7 +27,7 @@ src.utils.game_module = game_module
 src.utils.NP = args.numpy
 
 if args.symmetry:
-    sym_do_move = lambda init_state, move: src.utils.game_module.symmetrical_equivalent(src.utils.game_module.do_move(init_state, move))
+    sym_do_move = lambda init_state, move: src.utils.symmetrical_equivalent(src.utils.game_module.do_move(init_state, move))
     src.utils.game_module.enhanced_do_move = sym_do_move
 else:
     src.utils.game_module.enhanced_do_move = src.utils.game_module.do_move

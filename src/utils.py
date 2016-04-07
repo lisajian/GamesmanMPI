@@ -35,3 +35,6 @@ def negate(state):
 def to_str(state):
     str_rep = ("WIN", "LOSS", "TIE", "DRAW", "UNDECIDED")
     return str_rep[state]
+
+def symmetrical_equivalent(board):
+    available_funcs = game_module.symmetry_functions()
