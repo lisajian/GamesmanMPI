@@ -66,4 +66,5 @@ if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
     initial_job = Job(Job.LOOK_UP, initial_gamestate, process.rank, Job.INITIAL_JOB_ID)
     process.add_job(initial_job)
+
 process.run()
