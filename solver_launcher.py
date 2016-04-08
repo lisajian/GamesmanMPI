@@ -14,6 +14,9 @@ parser.add_argument("-np", "--numpy", help="optimize for numpy array usage",
 parser.add_argument("--debug", help="enables or disables logging",
                                action="store_true")
 
+parser.add_argument("-s", "--symmetry", help="optimize symmetrically equivalent board states",
+                               action="store_true")
+
 args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
@@ -22,6 +25,12 @@ comm = MPI.COMM_WORLD
 game_module = imp.load_source('game_module', args.game_file)
 src.utils.game_module = game_module
 src.utils.NP = args.numpy
+
+if args.symmetry:
+    sym_do_move = lambda init_state, move: src.utils.symmetrical_equivalent(src.utils.game_module.do_move(init_state, move))
+    src.utils.game_module.enhanced_do_move = sym_do_move
+else:
+    src.utils.game_module.enhanced_do_move = src.utils.game_module.do_move
 
 # Make sure every process has a copy of this.
 comm.Barrier()
@@ -57,4 +66,5 @@ if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
     initial_job = Job(Job.LOOK_UP, initial_gamestate, process.rank, Job.INITIAL_JOB_ID)
     process.add_job(initial_job)
+
 process.run()
