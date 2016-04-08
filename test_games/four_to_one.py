@@ -16,6 +16,3 @@ def primitive(x):
         return src.utils.LOSS
     else:
         return src.utils.UNDECIDED
-
-def symmetrical_equivalent(x):
-    return x
