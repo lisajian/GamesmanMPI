@@ -1,3 +1,6 @@
+import hashlib
+import numpy as np
+
 WIN, LOSS, TIE, DRAW, UNDECIDED = 0, 1, 2, 3, 4
 
 PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
@@ -37,4 +40,6 @@ def to_str(state):
     return str_rep[state]
 
 def symmetrical_equivalent(board):
-    available_funcs = game_module.symmetry_functions()
+    equivalent_boards = symmetry_recursive_helper(board, game_module.symmetry_functions())
+    hashes = map(lambda board: int(hashlib.md5(str(board).encode('utf-8')).hexdigest(), 16), equivalent_boards)
+    return equivalent_boards[np.argmin(hashes)]
