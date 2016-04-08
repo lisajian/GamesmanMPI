@@ -296,13 +296,8 @@ class Process:
                 job.game_state.state = self.resolved[to_resolve.game_state.index]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.index]
             logging.info("Resolved " + str(job.game_state.pos) +
-<<<<<<< HEAD
                          " to " + STATE_MAP[job.game_state.state] +
                          ", remoteness: " + str(self.remote[to_resolve.game_state.index]))
-=======
-                         " to " + str(job.game_state.state) +
-                         ", remoteness: " + str(self.remote[to_resolve.game_state.pos]))
->>>>>>> upstream/master
             to = Job(Job.SEND_BACK, job.game_state, to_resolve.parent, to_resolve.job_id)
             self.add_job(to)
         self.stats_dict["resolve_data"] = self.resolved
