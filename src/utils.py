@@ -46,10 +46,10 @@ def symmetrical_equivalent(board):
 
 def symmetry_recursive_helper(board, func_num_zip):
     funcs = func_num_zip[:] # Copy lists so passing by reference doesn't mess us up
-    equiv_boards = map(lambda func_zip: func_zip[0](board), func_num_zip) # Equivalent boards one step away
+    equiv_boards = list(map(lambda func_zip: func_zip[0](board), func_num_zip)) # Equivalent boards one step away
     for i, fnz in enumerate(func_num_zip):
         list_to_pass = funcs[:]
-        list_to_pass[i][1] = fnz[1] - 1
+        list_to_pass[i] = (fnz[0], fnz[1] - 1)
         if list_to_pass[i][1] > 0:
             equiv_boards += symmetry_recursive_helper(fnz[0](board), list_to_pass)
     return equiv_boards

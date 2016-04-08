@@ -11,6 +11,7 @@ length = 6
 
 board_state_element_type = MPI.CHAR
 
+"""
 def print_board(board):
     print board[1:,:]
     print 'hand1T=' + str(board[0,0])
@@ -18,6 +19,7 @@ def print_board(board):
     print 'hand2T=' + str(board[0,2])
     print 'hand2O=' + str(board[0,3])
     print 'firstPlayerTurn=' + str(board[0,4]==1)
+"""
 
 # top row is number of T for P1, O for P1, T for P2, O for P3, which players turn it is, constant 1
 # assumes that player 1 always goes for toot
@@ -129,6 +131,7 @@ def symmetry_functions():
     f = lambda state: np.vstack((state[0,:], np.fliplr(state[1:,:])))
     return [(f, 2)]
 
+"""
 #helpful prints for reference, understanding the code, and debugging
 def example():
     print 'the initial position is the following:'
@@ -184,3 +187,4 @@ def example():
     print len(possible_actions)
     print 'primitive value:'
     print primitive(board)
+"""
