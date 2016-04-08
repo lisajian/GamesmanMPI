@@ -14,7 +14,8 @@ class Job:
     RESOLVE           = 2
     SEND_BACK         = 3
     DISTRIBUTE        = 4
-    CHECK_FOR_UPDATES = 5
+    STATS             = 5
+    CHECK_FOR_UPDATES = 6
 
     # Special number associated with the initial job id.
     INITIAL_JOB_ID = 0
