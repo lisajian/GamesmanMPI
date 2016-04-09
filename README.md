@@ -101,7 +101,7 @@ The type associated with the NumPy arrays used to represent a board state.
 board_state_element_type = MPI.INT
 ```
 
-#### <a name="sym-api"></a> symmetry_functions() (Optional, see [symmetry](#sym-desc))
+#### <a name="sym-api"></a> symmetry_functions( ) (Optional, see [symmetry](#sym-desc))
 ###### Parameters
 - returns: list of tuples
   - The first element of each tuple should be a function that takes a board state as an argument and returns a symmetrically equivalent state.
