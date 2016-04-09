@@ -42,7 +42,7 @@ def to_str(state):
 
 def symmetrical_equivalent(board):
     equivalent_boards = symmetry_recursive_helper(board, game_module.symmetry_functions())
-    hashes = map(lambda board: int(hashlib.md5(str(board).encode('utf-8')).hexdigest(), 16), equivalent_boards)
+    hashes = list(map(lambda board: int(hashlib.md5(str(board).encode('utf-8')).hexdigest(), 16), equivalent_boards))
     return equivalent_boards[np.argmin(hashes)]
 
 def symmetry_recursive_helper(board, func_num_zip):
