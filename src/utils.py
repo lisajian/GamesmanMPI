@@ -56,8 +56,8 @@ def symmetry_recursive_helper(board, func_num_zip):
     return equiv_boards
 
 # Really hacky but fine for now
+setitem = operator.setitem
 def remove_duplicates(has_duplicates):
-    setitem = operator.setitem
     no_duplicates = {}
     [operator.setitem(no_duplicates,repr(i),i) for i in has_duplicates if not repr(i) in no_duplicates]
     return list(no_duplicates.values())
