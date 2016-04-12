@@ -83,3 +83,6 @@ class GameState:
     @property
     def index(self):
         return repr(self.pos)
+
+    def __str__(self):
+        return "Pos {0}, State: {1}, Remoteness: {2}".format(self.pos, self.state, self.remoteness)

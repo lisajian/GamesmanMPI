@@ -244,6 +244,7 @@ class Process:
         max_num = max(nums[res1], nums[res2])
         return negate(states[max_num])
 
+
     def _remote_red(self, rem1, rem2):
         """
         Private method that helps reduce remoteness
@@ -254,10 +255,15 @@ class Process:
         if rem2 is None:
             return GameState(None, rem1.remoteness, rem1.state)
 
-        if rem1.state == WIN or rem2.state == WIN:
+        if rem1.state == LOSS or rem2.state == LOSS:
+            if rem1.state == LOSS and rem2.state == WIN:
+                return GameState(None, rem1.remoteness, LOSS)
+            elif rem1.state == WIN and rem2.state == LOSS:
+                return GameState(None, rem2.remoteness, LOSS)
+            else:
+                return GameState(None, min(rem1.remoteness, rem2.remoteness), LOSS)
+        elif rem2.state == WIN and rem1.state == WIN:
             return GameState(None, max(rem1.remoteness, rem2.remoteness), WIN)
-        elif rem2.state == LOSS and rem1.state == LOSS:
-            return GameState(None, min(rem1.remoteness, rem2.remoteness), LOSS)
         else:
             # Use rem1.state by default, but rem2.state should work too.
             return GameState(None, max(rem1.remoteness, rem2.remoteness), rem1.state)
