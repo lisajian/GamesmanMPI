@@ -29,9 +29,9 @@ class GameState:
         children positions.
         """
         # Raw, in other words, not a GameState object.
-        raw_states = map(lambda m: game_module.enhanced_do_move(self.pos, m), game_module.gen_moves(self.pos))
+        raw_states = list(map(lambda m: game_module.enhanced_do_move(self.pos, m), game_module.gen_moves(self.pos)))
         # Wrapped, in other words, a GameState object.
-        wrapped_states = map(lambda m: GameState(m), raw_states)
+        wrapped_states = map(lambda m: GameState(m), remove_duplicates(raw_states))
         return wrapped_states
 
     @property

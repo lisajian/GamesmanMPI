@@ -1,4 +1,5 @@
 import hashlib
+import operator
 import numpy as np
 
 WIN, LOSS, TIE, DRAW, UNDECIDED = 0, 1, 2, 3, 4
@@ -41,7 +42,7 @@ def to_str(state):
 
 def symmetrical_equivalent(board):
     equivalent_boards = symmetry_recursive_helper(board, game_module.symmetry_functions())
-    hashes = map(lambda board: int(hashlib.md5(str(board).encode('utf-8')).hexdigest(), 16), equivalent_boards)
+    hashes = list(map(lambda board: int(hashlib.md5(str(board).encode('utf-8')).hexdigest(), 16), equivalent_boards))
     return equivalent_boards[np.argmin(hashes)]
 
 def symmetry_recursive_helper(board, func_num_zip):
@@ -53,3 +54,10 @@ def symmetry_recursive_helper(board, func_num_zip):
         if list_to_pass[i][1] > 0:
             equiv_boards += symmetry_recursive_helper(fnz[0](board), list_to_pass)
     return equiv_boards
+
+# Really hacky but fine for now
+setitem = operator.setitem
+def remove_duplicates(has_duplicates):
+    no_duplicates = {}
+    [operator.setitem(no_duplicates,repr(i),i) for i in has_duplicates if not repr(i) in no_duplicates]
+    return list(no_duplicates.values())

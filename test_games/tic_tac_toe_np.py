@@ -9,6 +9,11 @@ def initial_position():
 
 board_state_element_type = MPI.CHAR
 
+def symmetry_functions():
+    rotation = lambda board: np.rot90(board, k=1)
+    mirror_hoz = lambda board: board[:,::-1]
+    return [(rotation, 4), (mirror_hoz, 2)]
+    
 #action is tuple: (player, (x,y))
 #it returns a list of all valid action tuples
 def gen_moves(state):
