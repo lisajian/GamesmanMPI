@@ -244,7 +244,6 @@ class Process:
         max_num = max(nums[res1], nums[res2])
         return negate(states[max_num])
 
-
     def _remote_red(self, rem1, rem2):
         """
         Private method that helps reduce remoteness
