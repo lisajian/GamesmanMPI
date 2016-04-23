@@ -17,6 +17,9 @@ parser.add_argument("--debug", help="enables or disables logging",
 parser.add_argument("-s", "--symmetry", help="optimize symmetrically equivalent board states",
                                action="store_true")
 
+parser.add_argument('-sd', "--statsdir", help="location to store statistics about game",
+                               action="store")
+
 args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
@@ -61,7 +64,8 @@ if args.debug:
 
 logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=lvl)
 
-process = Process(comm.Get_rank(), comm.Get_size(), comm, NP=args.numpy)
+process = Process(comm.Get_rank(), comm.Get_size(), comm, 
+                  NP=args.numpy, stats_dir=args.statsdir)
 if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
     initial_job = Job(Job.LOOK_UP, initial_gamestate, process.rank, Job.INITIAL_JOB_ID)

@@ -11,6 +11,9 @@ else:
     from Queue import PriorityQueue
 import logging
 
+#For storing data.
+from shove import Shove
+
 class Process:
     """
     Class that defines the behavior what each process should do
@@ -29,7 +32,6 @@ class Process:
             self.resolve,
             self.send_back,
             self.distribute,
-            self.stats,
             self.check_for_updates
         )
         return _dispatch_table[job.job_type](job)
@@ -55,17 +57,9 @@ class Process:
             if self.rank == self.root and self.initial_pos.index in self.resolved:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
-                print(STATE_MAP[self.resolved[self.initial_pos.index]] + " in " + str(self.remote[self.initial_pos.index]) + " moves")
-                statistics = []         # We store stats_dict from each node in the statistics list.
-                for rank in range(self.world_size):
-                    if rank == self.rank:
-                        stat = self.stats_dict
-                    else:
-                        send_req = self.send(Job(Job.STATS), dest = rank)
-                        stat = self.recv(source = rank)
-                    statistics.append( (rank, stat) )
-                with open('data/statistics.txt', 'w+') as f:
-                    f.write(str(statistics))
+                print(STATE_MAP[self.resolved[self.initial_pos.index]] 
+                    + " in " 
+                    + str(self.remote[self.initial_pos.index]) + " moves")
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
@@ -75,7 +69,7 @@ class Process:
                 continue
             self.add_job(result)
 
-    def __init__(self, rank, world_size, comm, NP=False):
+    def __init__(self, rank, world_size, comm, NP=False, stats_dir=''):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
@@ -87,12 +81,19 @@ class Process:
         else:
             self.send = self.comm.send
             self.recv = self.comm.recv
+        
+        if stats_dir == None:
+            stats_dir = ''
+        else:
+            if stats_dir[-1] != '/':
+                stats_dir = stats_dir + '/'
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)
 
         self.work = PriorityQueue()
-        self.resolved = {}
-        self.remote = {}
+        folder_path = 'file://' + stats_dir + 'stats/' + str(self.rank) + '/'
+        self.resolved = Shove(folder_path + 'results')
+        self.remote = Shove(folder_path + 'remote')
         # As for recieving, should test them when appropriate
         # in the run loop.
         self.received = []
@@ -103,12 +104,12 @@ class Process:
         # with length 2. Then once all the results have been received
         # you can compare the length, and then reduce the results.
         # solving this particular distributed task.
-        self._id = 0              # Job id tracker.
-        self._counter = {}        # A job_id -> Number of results
-                                  # remaining.
-        self._pending = {}        # job_id -> [ Job, GameStates, ... ]
-                                  # Resolved.
-        self.stats_dict = {}            # Dictionary continue statistics for process.
+        self._id = 0                                   # Job id tracker.
+        self._counter = {}                             # A job_id -> Number of results
+                                                       # remaining.
+        self._pending = {}                             # job_id -> [ Job, GameStates, ... ]
+                                                       # Resolved.
+        self.stats_dict = Shove(folder_path + 'stats') # Dictionary continue statistics for process.
         self.stats_dict["num_lookups"] = 0
 
     def add_job(self, job):
