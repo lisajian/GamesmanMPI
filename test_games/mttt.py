@@ -11,32 +11,32 @@ BLANK = '_'
 def initial_position():
     return BLANK * WIDTH * HEIGHT
 
-def toLoc(i):
+def to_loc(i):
     x = i % WIDTH
     y = i // WIDTH
     return (x, y)
 
-def toIndex(loc):
+def to_index(loc):
     x, y = loc
     return x + (y * WIDTH)
 
-def findSpaces(pos):
+def find_spaces(pos):
     for i, p in enumerate(pos):
         if p == BLANK:
             yield i
 
-def findNonSpaces(pos):
+def find_non_spaces(pos):
     for i, p in enumerate(pos):
         if p != BLANK:
             yield i
 
-def getPiece(pos, x, y):
+def get_piece(pos, x, y):
     if x < 0 or x > 2 or y < 0 or y > 2:
         return 'B'
     else:
-        return pos[toIndex((x, y))]
+        return pos[to_index((x, y))]
 
-def getPlayer(pos):
+def get_player(pos):
     if pos.count(O) >= pos.count(X):
         return X
     else:
@@ -69,17 +69,17 @@ def primitive(pos):
     ...           X + X + O)
     'lose'
     '''
-    for x, y in [toLoc(i) for i in
-                 findNonSpaces(pos)]:
-        piece = getPiece(pos, x, y)
-        if ((getPiece(pos, x + 1, y) == piece and
-             getPiece(pos, x + 2, y) == piece) or
-            (getPiece(pos, x, y + 1) == piece and
-             getPiece(pos, x, y + 2) == piece) or
-            (getPiece(pos, x + 1, y + 1) == piece and
-             getPiece(pos, x + 2, y + 2) == piece) or
-            (getPiece(pos, x - 1, y + 1) == piece and
-             getPiece(pos, x - 2, y + 2) == piece)):
+    for x, y in [to_loc(i) for i in
+                 find_non_spaces(pos)]:
+        piece = get_piece(pos, x, y)
+        if ((get_piece(pos, x + 1, y) == piece and
+             get_piece(pos, x + 2, y) == piece) or
+            (get_piece(pos, x, y + 1) == piece and
+             get_piece(pos, x, y + 2) == piece) or
+            (get_piece(pos, x + 1, y + 1) == piece and
+             get_piece(pos, x + 2, y + 2) == piece) or
+            (get_piece(pos, x - 1, y + 1) == piece and
+             get_piece(pos, x - 2, y + 2) == piece)):
             return src.utils.LOSS
     if BLANK in pos:
         return src.utils.UNDECIDED
@@ -101,7 +101,7 @@ def gen_moves(pos):
     ...               'X__')
     [(1, 2), (2, 2)]
     '''
-    return [toLoc(i) for i in findSpaces(pos)]
+    return [to_loc(i) for i in find_spaces(pos)]
 
 def do_move(position, move):
     '''
@@ -122,6 +122,6 @@ def do_move(position, move):
     ...        '___', (0, 2))
     'XOXOXOX__'
     '''
-    player = getPlayer(position)
-    index = toIndex(move)
+    player = get_player(position)
+    index = to_index(move)
     return position[:index] + player + position[index + 1:]
