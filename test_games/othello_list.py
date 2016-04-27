@@ -35,11 +35,7 @@ def primitive(board):
 					white_count += 1
 		if black_count == white_count:
 			return scr.utils.TIE
-		if black_count > white_count:
-			if board[1] == 1:
-				return src.utils.WIN
-			return src.utils.LOSS
-		if board[1] == 1:
+		if (black_count > white_count) ^ (board[1] == 1):
 			return src.utils.LOSS
 		return src.utils.WIN
 
@@ -50,10 +46,9 @@ def primitive(board):
 			if board[0][x][y] != 0:
 				non_zero_count+=1
 
-	if non_zero_count == height*length:
+	if non_zero_count == height*length or board[2] >= 2:
 		return determine_winner()
-	if board[2] >= 2:
-		return determine_winner()
+
 	return src.utils.UNDECIDED
 
 #generates all possible moves of the parameter board and returns a list of them,
@@ -74,7 +69,7 @@ def gen_moves(board):
 			dx += 1
 
 	def legit_helper(x,y,dx,dy,first):
-		if x >= height or y >= length or x < 1 or y < 0:
+		if x >= height or y >= length or x < 0 or y < 0:
 			return False
 		opponent_color = 1 + (board[1] % 2)
 		if first:

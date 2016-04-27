@@ -197,4 +197,3 @@ def example():
 	print possible_actions
 	print 'primitive value:'
 	print primitive(board)
-
