@@ -46,10 +46,9 @@ def primitive(board):
 			if board[0][x][y] != 0:
 				non_zero_count+=1
 
-	if non_zero_count == height*length:
+	if non_zero_count == height*length or board[2] >= 2:
 		return determine_winner()
-	if board[2] >= 2:
-		return determine_winner()
+
 	return src.utils.UNDECIDED
 
 #generates all possible moves of the parameter board and returns a list of them,
