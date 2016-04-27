@@ -119,7 +119,7 @@ def do_move(board, move):
 	def flip_helper2(state,x,y,dx,dy,to_flip):
 		if x >= height or y >= length or x < 0 or y < 0:
 			return
-		if state[0][x][y] == board[1]:
+		if state[0][x][y] == 1 + ((board[1] + 1) % 2):
 			for i,j in to_flip:
 				state[0][i][j] = board[1]
 			return
