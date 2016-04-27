@@ -97,7 +97,7 @@ def gen_moves(board):
 #returns the successor state as a numpy array e to the board
 def do_move(board, move):
 	def flip_pieces(state,x,y):
-		state[0][x][y] = board[1]
+		state[0][x][y] = 1 + ((board[1] + 1) % 2)
 		dx = -1
 		while dx <= 1:
 			dy = -1
@@ -121,7 +121,7 @@ def do_move(board, move):
 			return
 		if state[0][x][y] == 1 + ((board[1] + 1) % 2):
 			for i,j in to_flip:
-				state[0][i][j] = board[1]
+				state[0][i][j] = 1 + ((board[1] + 1) % 2)
 			return
 		opponent_color = 1 + (board[1] % 2)
 		if state[0][x][y] == opponent_color:
