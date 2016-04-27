@@ -69,7 +69,7 @@ def gen_moves(board):
 			dx += 1
 
 	def legit_helper(x,y,dx,dy,first):
-		if x >= height or y >= length or x < 1 or y < 0:
+		if x >= height or y >= length or x < 0 or y < 0:
 			return False
 		opponent_color = 1 + (board[1] % 2)
 		if first:
