@@ -136,7 +136,7 @@ def do_move(board, move):
 	if move == None:
 		successor[2] += 1
 		return successor
-	# successor[2] = 0 <- not sure what this does
+	successor[2] = 0 # Since we didn't pass, reset the pass count
 
 	x, y = move
 	flip_pieces(successor, x, y)
