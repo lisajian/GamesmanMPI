@@ -46,7 +46,7 @@ def primitive(board):
             return src.utils.LOSS
         return src.utils.WIN
 
-    if black_count+white_count == height*length:
+    if not '0' in board[:-2]:
         return determine_winner()
     if int(board[height*length+1]) >= 2:
         return determine_winner()
