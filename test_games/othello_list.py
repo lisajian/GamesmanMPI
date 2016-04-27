@@ -35,11 +35,7 @@ def primitive(board):
 					white_count += 1
 		if black_count == white_count:
 			return scr.utils.TIE
-		if black_count > white_count:
-			if board[1] == 1:
-				return src.utils.WIN
-			return src.utils.LOSS
-		if board[1] == 1:
+		if (black_count > white_count) ^ (board[1] == 1):
 			return src.utils.LOSS
 		return src.utils.WIN
 
