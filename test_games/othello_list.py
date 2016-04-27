@@ -130,7 +130,8 @@ def do_move(board, move):
 			return flip_helper2(state,x+dx,y+dy,dx,dy, to_flip)
 		return False
 
-	successor = board
+	successor = board[:]
+	successor[0] = board[0][:]
 	#account for pass case
 	if move == None:
 		successor[2] += 1
