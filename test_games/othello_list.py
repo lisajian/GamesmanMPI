@@ -114,7 +114,7 @@ def do_move(board, move):
 		if state[0][x][y] != opponent_color:
 			return
 		to_flip = [(x, y)]
-		return flip_helper2(state,x+dx,y+dy,dx,dy,to_flip)
+		flip_helper2(state,x+dx,y+dy,dx,dy,to_flip)
 
 	def flip_helper2(state,x,y,dx,dy,to_flip):
 		if x >= height or y >= length or x < 0 or y < 0:
@@ -126,8 +126,7 @@ def do_move(board, move):
 		opponent_color = 1 + (board[1] % 2)
 		if state[0][x][y] == opponent_color:
 			to_flip.append((x,y))
-			return flip_helper2(state,x+dx,y+dy,dx,dy, to_flip)
-		return False
+			flip_helper2(state,x+dx,y+dy,dx,dy, to_flip)
 
 	successor = board[:]
 	successor[0] = board[0][:]
