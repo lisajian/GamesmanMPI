@@ -97,7 +97,7 @@ def gen_moves(board):
 #returns the successor state as a numpy array e to the board
 def do_move(board, move):
 	def flip_pieces(state,x,y):
-		state[0][x][y] = board[1]
+		state[0][x][y] = 1 + ((board[1] + 1) % 2)
 		dx = -1
 		while dx <= 1:
 			dy = -1
@@ -108,34 +108,33 @@ def do_move(board, move):
 			dx += 1
 
 	def flip_helper(state,x,y,dx,dy):
-		if x >= height+1 or y >= length or x < 1 or y < 0:
+		if x >= height or y >= length or x < 0 or y < 0:
 			return
 		opponent_color = 1 + (board[1] % 2)
 		if state[0][x][y] != opponent_color:
 			return
-		to_flip = []
-		to_flip.append((x,y))
-		return flip_helper2(state,x+dx,y+dy,dx,dy,to_flip)
+		to_flip = [(x, y)]
+		flip_helper2(state,x+dx,y+dy,dx,dy,to_flip)
 
 	def flip_helper2(state,x,y,dx,dy,to_flip):
-		if x >= height+1 or y >= length or x < 1 or y < 0:
+		if x >= height or y >= length or x < 0 or y < 0:
 			return
-		if state[0][x][y] == board[1]:
+		if state[0][x][y] == 1 + ((board[1] + 1) % 2):
 			for i,j in to_flip:
-				state[0][i][j] = board[1]
+				state[0][i][j] = 1 + ((board[1] + 1) % 2)
 			return
 		opponent_color = 1 + (board[1] % 2)
 		if state[0][x][y] == opponent_color:
 			to_flip.append((x,y))
-			return flip_helper2(state,x+dx,y+dy,dx,dy, to_flip)
-		return False
+			flip_helper2(state,x+dx,y+dy,dx,dy, to_flip)
 
-	successor = board
+	successor = board[:]
+	successor[0] = board[0][:]
 	#account for pass case
 	if move == None:
 		successor[2] += 1
 		return successor
-	# successor[2] = 0 <- not sure what this does
+	successor[2] = 0 # Since we didn't pass, reset the pass count
 
 	x, y = move
 	flip_pieces(successor, x, y)
