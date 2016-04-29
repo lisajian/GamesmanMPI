@@ -139,7 +139,9 @@ def print_board(board):
         print(row)
     print("Player's turn: ", current_turn(board))
 
-def example():
+def example(num_times):
+    import random
+
     print('the initial position is the following:')
     print_board(initial_position())
     possible_actions = gen_moves(initial_position())
@@ -148,45 +150,21 @@ def example():
     print('primitive value:')
     print(primitive(initial_position()))
 
-    board_turn_1 = do_move(initial_position(), possible_actions[2])
-    print_board(board_turn_1)
-    possible_actions = gen_moves(board_turn_1)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board_turn_1))
+    for i in range(num_times):
+        print("Starting game " + str(i))
+        possible_actions = gen_moves(initial_position())
+        board = initial_position()
 
-    board = do_move(board_turn_1, possible_actions[0])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
+        while primitive(board) == src.utils.UNDECIDED:
+            action = random.randint(0,len(possible_actions) - 1)
+            board = do_move(board, possible_actions[0])
+            print_board(board)
+            possible_actions = gen_moves(board)
+            print('New possible actions:')
+            print(possible_actions)
+            print('primitive value:')
+            print(primitive(board))
 
-    board = do_move(board, possible_actions[1])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
-
-    board = do_move(board, possible_actions[2])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
-
-    board = do_move(board, possible_actions[4])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
 
 def primitive_example():
     import random
