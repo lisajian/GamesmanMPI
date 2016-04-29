@@ -31,7 +31,7 @@ def primitive(board):
                 elif board_get(board, x, y) == WHITE:
                     white_count += 1
         if black_count == white_count:
-            return scr.utils.TIE
+            return src.utils.TIE
         if (black_count > white_count) ^ (turn_count(board) == 1):
             return src.utils.LOSS
         return src.utils.WIN
@@ -188,6 +188,17 @@ def example():
     print('primitive value:')
     print(primitive(board))
 
+def primitive_example():
+    import random
+    board = initial_position()
+    for x in range(length):
+        for y in range(height):
+            if random.randint(0,1) == 0:
+                board_set(board, x, y, WHITE)
+            else:
+                board_set(board, x, y, BLACK)
+    print_board(board)
+    print("Primitive Value: " + src.utils.STATE_MAP[primitive(board)])
 
 """
 HELPER FUNCTIONS FOR BIT MANIPULATION
