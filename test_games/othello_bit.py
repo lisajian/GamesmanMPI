@@ -1,4 +1,5 @@
 from bitarray import bitarray
+from functools import wraps
 import src.utils
 
 length, height = 8, 8
@@ -7,6 +8,29 @@ BLANK, WHITE, BLACK = 0, 2, 1
 opponent = {BLACK:WHITE, WHITE:BLACK, BLANK:BLANK}
 char_rep = {BLACK:"O", WHITE:"X", BLANK:"-"}
 
+"""
+WRAPPERS FOR DUMB HASHING PROBLEMS
+"""
+def unpackinput(func):
+    # Unpacks bytes into bitarrays
+    @wraps(func)
+    def wrapper(by, *args):
+        return func(bytes_to_board(by), *args)
+    return wrapper
+
+def packoutput(func):
+    # Packs bitarrays into bytes
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return board_to_bytes(func(*args, **kwargs))
+    return wrapper
+
+"""
+MAIN GAME LOGIC
+"""
+
+
+@packoutput
 def initial_position():
     # The first length*height bits represent the white player's pieces
     # The second length*height bits represent the black player's pieces
@@ -25,6 +49,7 @@ def initial_position():
 
     return initial_pos + padding
 
+@unpackinput
 def primitive(board):
     def determine_winner():
         black_count = 0
@@ -53,6 +78,8 @@ def primitive(board):
         return determine_winner()
     return src.utils.UNDECIDED
 
+@unpackinput
+@packoutput
 def do_move(board, move):
     def flip_pieces(state,x,y):
         board_set(state, x, y, current_turn(board))
@@ -97,6 +124,7 @@ def do_move(board, move):
     incr_turn(successor)
     return successor
 
+@unpackinput
 def gen_moves(board):
     def legit_move(x, y):
         if board_get(board, x, y) != BLANK:
@@ -136,6 +164,7 @@ def gen_moves(board):
         possible_moves.append(None)
     return possible_moves
 
+@unpackinput
 def print_board(board):
     #prints the current board and players turn
     for x in range(length):
