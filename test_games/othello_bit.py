@@ -2,11 +2,16 @@ from bitarray import bitarray
 from functools import wraps
 import src.utils
 
-length, height = 8, 8
+"""
+FUN CONSTANTS
+"""
+length, height = 8, 8 # Feel free to edit
+
 area = length * height
 BLANK, WHITE, BLACK = 0, 2, 1
 opponent = {BLACK:WHITE, WHITE:BLACK, BLANK:BLANK}
 char_rep = {BLACK:"O", WHITE:"X", BLANK:"-"}
+turn_count_map = {1:BLACK, 2:WHITE}
 
 """
 WRAPPERS FOR DUMB HASHING PROBLEMS
@@ -212,17 +217,36 @@ def primitive_example():
     print("Primitive Value: " + src.utils.STATE_MAP[primitive(board)])
 
 """
+SYMMETRY FUNCTIONS
+"""
+def symmetry_functions():
+    return [(player_flip, 2)]
+
+@unpackinput
+@packoutput
+def player_flip(board):
+    new_board = board[:]
+    for x in range(length):
+        for y in range(height):
+            flip(new_board, x, y)
+    incr_turn(new_board)
+    return new_board
+
+"""
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
+# Used for packing function outputs for hashing
 def board_to_bytes(board):
     return board.tobytes()
 
+# Used to unpack function input from hashable form
 def bytes_to_board(data):
     a = bitarray(endian='big')
     a.frombytes(data)
     return a
 
+# Gets the color of an (x, y) coordinate in board
 def board_get(board, x, y):
     if board[int(length  * y + x)]:
         return WHITE
@@ -231,6 +255,7 @@ def board_get(board, x, y):
     else:
         return BLANK
 
+# Sets (x, y) on board to color
 def board_set(board, x, y, color):
     w_index = int(length * y + x)
     b_index = int(area + length * y + x)
@@ -244,13 +269,16 @@ def board_set(board, x, y, color):
         board[w_index] = False
         board[b_index] = False
 
+# Flips the piece at (x, y) on board, leaves blank spaces undisturbed
 def flip(board, x, y):
     board_set(board, x, y, opponent[board_get(board, x, y)])
 
+# Returns turn count of board
 def turn_count(board):
     start = 2 * area
     return int.from_bytes(board[start:start + 8].tobytes(), byteorder="big", signed=False)
 
+# Increments the turn in such a way that it remains either one or two
 def incr_turn(board):
     new_turn = (turn_count(board)) % 2 + 1
     start = 2 * area
@@ -258,14 +286,12 @@ def incr_turn(board):
     a.frombytes(new_turn.to_bytes(1, byteorder='big', signed=False))
     board[start:start + 8] = a
 
-def reset_turn(board):
-    start = 2 * area
-    board[start:start + 8] = bitarray('00000000')
-
+# Returns number of passes in a row
 def pass_count(board):
     start = 2 * area + 8
     return int.from_bytes(board[start:start + 8].tobytes(), byteorder="big", signed=False)
 
+# Increments pass counter by one
 def incr_pass(board):
     new_pass = pass_count(board) + 1
     start = 2 * area + 8
@@ -273,13 +299,17 @@ def incr_pass(board):
     a.frombytes(new_pass.to_bytes(1, byteorder='big', signed=False))
     board[start:start + 8] = a
 
+# Resets pass counter to zero
 def reset_pass(board):
     start = 2 * area + 8
     board[start:start + 8] = bitarray('00000000')
 
+# Returns true if board is full
 def full(board):
-    full_board = bitarray(area).setall(True)
+    full_board = bitarray(area)
+    full_board.setall(True)
     return board[0:area] | board[area: 2 * area] == full_board
 
+# Returns whose turn it is, either WHITE or BLACK
 def current_turn(board):
-    return WHITE if turn_count(board) % 2  == 0 else BLACK
+    return turn_count_map[turn_count(board)]
