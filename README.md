@@ -32,7 +32,7 @@ There are four elements which a game class must implement:
 3. do_moves
 4. primitive
 
-The exact way in which you represent a game state or moves (ints, lists, etc.) does not matter, as long as you are consistant. For the puposes of this guide, we'll use an integer to represent our gamestate and moves, since we our example is Four-To-One.
+The exact way in which you represent a game state or moves (ints, lists, etc.) does not matter, as long as you are consistant and it is *hashable*. For the puposes of this guide, we'll use an integer to represent our gamestate and moves, since we our example is Four-To-One.
 
 #### initial_position( )
 ###### Parameters
