@@ -212,6 +212,20 @@ def primitive_example():
     print("Primitive Value: " + src.utils.STATE_MAP[primitive(board)])
 
 """
+SYMMETRY FUNCTIONS
+"""
+def symmetry_functions():
+    return [(player_flip, 2)]
+
+def player_flip(board):
+    new_board = board[:]
+    for x in range(length):
+        for y in range(height):
+            flip(new_board, x, y)
+    incr_turn(new_board)
+    return new_board
+
+"""
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
