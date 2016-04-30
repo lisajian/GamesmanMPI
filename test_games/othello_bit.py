@@ -28,8 +28,6 @@ def packoutput(func):
 """
 MAIN GAME LOGIC
 """
-
-
 @packoutput
 def initial_position():
     # The first length*height bits represent the white player's pieces
@@ -217,7 +215,6 @@ def primitive_example():
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
-
 def board_to_bytes(board):
     return board.tobytes()
 
