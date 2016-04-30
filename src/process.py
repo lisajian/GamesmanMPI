@@ -10,8 +10,9 @@ else:
     from Queue import PriorityQueue
 import logging
 
-# For storing objects.
-from shove import Shove
+# For storing data.
+import os
+import shelve
 
 class Process:
     """
@@ -86,9 +87,13 @@ class Process:
         self.root = self.initial_pos.get_hash(self.world_size)
 
         self.work = PriorityQueue()
-        folder_path = 'file://' + stats_dir + 'stats/' + str(self.rank) + '/'
-        self.resolved = Shove(folder_path + 'results')
-        self.remote = Shove(folder_path + 'remote')
+        folder_path = stats_dir + 'stats/' + str(self.rank) + '/'
+        try:
+            os.makedirs(folder_path)
+        except OSError: # File exists.
+            pass
+        self.resolved = shelve.open(folder_path + 'results.shelve')
+        self.remote = shelve.open(folder_path + 'remote.shelve')
         # As for recieving, should test them when appropriate
         # in the run loop.
         self.received = []
@@ -104,7 +109,7 @@ class Process:
                                                                    # remaining.
         self._pending = {}                                         # job_id -> [ Job, GameStates, ... ]
                                                                    # Resolved.
-        self.stats_dict = Shove(folder_path + 'stats') # Statistics for process.
+        self.stats_dict = shelve.open(folder_path + 'stats.shelve')# Statistics for process.
         self.stats_dict["num_lookups"] = 0
 
     def add_job(self, job):
@@ -283,4 +288,3 @@ class Process:
                          ", remoteness: " + str(self.remote[to_resolve.game_state.pos]))
             to = Job(Job.SEND_BACK, job.game_state, to_resolve.parent, to_resolve.job_id)
             self.add_job(to)
-        self.stats_dict["resolve_data"] = self.resolved
