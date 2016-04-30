@@ -183,6 +183,22 @@ HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
 
+def board_to_ints(board):
+    num_boards = int(len(board) // 8) if len(board) % 8 == 0 else int(len(board) // 8 + 1)
+    ints = ()
+    for i in range(num_boards):
+        int_rep = int.from_bytes(board[i * 8:(i + 1) * 8].tobytes(), byteorder="big", signed=False)
+        ints = ints + (int_rep,)
+    return ints
+
+def ints_to_board(ints):
+    board = bitarray(endian='big')
+    for i in ints:
+        ba = bitarray(endian='big')
+        ba.frombytes(i.to_bytes(1, byteorder='big', signed=False))
+        board = board + ba
+    return board
+
 def board_get(board, x, y):
     if board[int(length  * y + x)]:
         return WHITE
