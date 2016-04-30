@@ -217,6 +217,8 @@ SYMMETRY FUNCTIONS
 def symmetry_functions():
     return [(player_flip, 2)]
 
+@unpackinput
+@packoutput
 def player_flip(board):
     new_board = board[:]
     for x in range(length):
