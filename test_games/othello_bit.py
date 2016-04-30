@@ -270,7 +270,7 @@ def incr_pass(board):
     new_pass = pass_count(board) + 1
     start = 2 * area + 8
     a = bitarray(endian='big')
-    a.frombytes(new_turn.tobytes(1, byteorder='big', signed=False))
+    a.frombytes(new_pass.tobytes(1, byteorder='big', signed=False))
     board[start:start + 8] = a
 
 def reset_pass(board):
