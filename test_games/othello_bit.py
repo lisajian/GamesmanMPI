@@ -1,4 +1,5 @@
 from bitarray import bitarray
+from functools import wraps
 import src.utils
 
 length, height = 8, 8
@@ -7,6 +8,27 @@ BLANK, WHITE, BLACK = 0, 2, 1
 opponent = {BLACK:WHITE, WHITE:BLACK, BLANK:BLANK}
 char_rep = {BLACK:"O", WHITE:"X", BLANK:"-"}
 
+"""
+WRAPPERS FOR DUMB HASHING PROBLEMS
+"""
+def unpackinput(func):
+    # Unpacks bytes into bitarrays
+    @wraps(func)
+    def wrapper(by, *args):
+        return func(bytes_to_board(by), *args)
+    return wrapper
+
+def packoutput(func):
+    # Packs bitarrays into bytes
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        return board_to_bytes(func(*args, **kwargs))
+    return wrapper
+
+"""
+MAIN GAME LOGIC
+"""
+@packoutput
 def initial_position():
     # The first length*height bits represent the white player's pieces
     # The second length*height bits represent the black player's pieces
@@ -17,8 +39,15 @@ def initial_position():
     board_set(initial_pos, length / 2 - 1, height / 2, BLACK)
     board_set(initial_pos, length / 2, height / 2 - 1, BLACK)
     board_set(initial_pos, length / 2, height / 2, WHITE)
-    return initial_pos
 
+    # We need our board have have a length that's a multiple of eight, since we
+    # convert it to a tuple of bytes
+    padding = bitarray(len(initial_pos) % 8)
+    padding.setall(False)
+
+    return initial_pos + padding
+
+@unpackinput
 def primitive(board):
     def determine_winner():
         black_count = 0
@@ -47,6 +76,8 @@ def primitive(board):
         return determine_winner()
     return src.utils.UNDECIDED
 
+@unpackinput
+@packoutput
 def do_move(board, move):
     def flip_pieces(state,x,y):
         board_set(state, x, y, current_turn(board))
@@ -91,6 +122,7 @@ def do_move(board, move):
     incr_turn(successor)
     return successor
 
+@unpackinput
 def gen_moves(board):
     def legit_move(x, y):
         if board_get(board, x, y) != BLANK:
@@ -130,6 +162,7 @@ def gen_moves(board):
         possible_moves.append(None)
     return possible_moves
 
+@unpackinput
 def print_board(board):
     #prints the current board and players turn
     for x in range(length):
@@ -139,7 +172,9 @@ def print_board(board):
         print(row)
     print("Player's turn: ", current_turn(board))
 
-def example():
+def example(num_times):
+    import random
+
     print('the initial position is the following:')
     print_board(initial_position())
     possible_actions = gen_moves(initial_position())
@@ -148,45 +183,21 @@ def example():
     print('primitive value:')
     print(primitive(initial_position()))
 
-    board_turn_1 = do_move(initial_position(), possible_actions[2])
-    print_board(board_turn_1)
-    possible_actions = gen_moves(board_turn_1)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board_turn_1))
+    for i in range(num_times):
+        print("Starting game " + str(i))
+        possible_actions = gen_moves(initial_position())
+        board = initial_position()
 
-    board = do_move(board_turn_1, possible_actions[0])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
+        while primitive(board) == src.utils.UNDECIDED:
+            action = random.randint(0,len(possible_actions) - 1)
+            board = do_move(board, possible_actions[0])
+            print_board(board)
+            possible_actions = gen_moves(board)
+            print('New possible actions:')
+            print(possible_actions)
+            print('primitive value:')
+            print(primitive(board))
 
-    board = do_move(board, possible_actions[1])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
-
-    board = do_move(board, possible_actions[2])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
-
-    board = do_move(board, possible_actions[4])
-    print_board(board)
-    possible_actions = gen_moves(board)
-    print('New possible actions:')
-    print(possible_actions)
-    print('primitive value:')
-    print(primitive(board))
 
 def primitive_example():
     import random
@@ -204,6 +215,13 @@ def primitive_example():
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
+def board_to_bytes(board):
+    return board.tobytes()
+
+def bytes_to_board(data):
+    a = bitarray(endian='big')
+    a.frombytes(data)
+    return a
 
 def board_get(board, x, y):
     if board[int(length  * y + x)]:
