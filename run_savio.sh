@@ -1,26 +1,22 @@
 #!/bin/bash
 # Job name:
-#SBATCH --job-name=gamesmanMPI-solve
+#SBATCH --job-name=mttt_test
 #
 # Partition:
-#SBATCH --partition=PARTITION NAME
+#SBATCH --partition=savio
+# 
+# QoS (put into debug mode:
+#SBATCH --qos=savio_debug
 #
 # Processors:
-#SBATCH --nodes=24
-#SBATCH --exclusive
-#
-# Num. Processors per Node
-#SBATCH --ntasks-per-node=4
-#
-# Constraint:
-#SBATCH --constraint=highmem
-#
-# Mail type:
-#SBATCH --mail-type=all
+#SBATCH --nodes=64
 #
 # Mail user:
-#SBATCH --mail-user=sbw@berkeley.edu
+#SBATCH --mail-user=csumnicht@berkeley.edu
 
 ## Command(s) to run:
 module load openmpi
-mpirun python solve_launcher.py test_games/toot_and_otto_np.py -np -s
+module load python/3.2.3
+module load mpi4py
+
+mpiexec python3 solve_launcher.py --debug test_games/mttt.py
