@@ -9,7 +9,7 @@
 #SBATCH --qos=savio_debug
 #
 # Processors:
-#SBATCH --nodes=64
+#SBATCH --nodes=4
 #
 # Mail user:
 #SBATCH --mail-user=csumnicht@berkeley.edu
