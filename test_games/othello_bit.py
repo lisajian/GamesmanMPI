@@ -45,6 +45,9 @@ def initial_position():
     board_set(initial_pos, length / 2, height / 2 - 1, BLACK)
     board_set(initial_pos, length / 2, height / 2, WHITE)
 
+    incr_turn(initial_pos)
+    incr_turn(initial_pos)
+
     # We need our board have have a length that's a multiple of eight, since we
     # convert it to a tuple of bytes
     padding = bitarray(len(initial_pos) % 8)
@@ -238,12 +241,12 @@ STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
 # Used for packing function outputs for hashing
 def board_to_bytes(board):
-    return board.tobytes()
+    return board.tobytes().decode('ISO-8859-1')
 
 # Used to unpack function input from hashable form
 def bytes_to_board(data):
     a = bitarray(endian='big')
-    a.frombytes(data)
+    a.frombytes(data.encode('ISO-8859-1'))
     return a
 
 # Gets the color of an (x, y) coordinate in board
