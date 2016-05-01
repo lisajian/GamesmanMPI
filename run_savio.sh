@@ -19,4 +19,4 @@ module load openmpi
 module load python/3.2.3
 module load mpi4py
 
-mpiexec python3 solve_launcher.py --debug test_games/mttt.py
+mpiexec python3 solver_launcher.py --debug test_games/mttt.py
