@@ -35,7 +35,7 @@ def initial_position():
     initial_pos = BitArray('0b0') * area * 2
     hand = BitArray('0b0110')
     initial_pos.append(hand * 4)
-    return initial_pos
+    return initial_posb
 
 """
 SYMMETRY FUNCTIONS
@@ -62,8 +62,8 @@ def board_set(board, x, y, letter):
         board[t_index] = True
         board[o_index] = False
     elif letter == O:
-        board[t_index] = True
-        board[o_index] = False
+        board[t_index] = False
+        board[o_index] = True
     else:
         board[t_index] = False
         board[o_index] = False
