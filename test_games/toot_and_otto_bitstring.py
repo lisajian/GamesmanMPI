@@ -5,7 +5,7 @@ import src.utils
 """
 FUN CONSTANTS
 """
-length, height = 8, 8 # Feel free to edit
+length, height = 6, 4 # Feel free to edit
 
 area = length * height
 BLANK, T, O, = 0, 1, -1
@@ -15,14 +15,14 @@ char_rep = {T:"T", O:"O", BLANK:"-"}
 WRAPPERS FOR HASHING PROBLEMS
 """
 def unpackinput(func):
-    # Unpacks bytes into bitarrays
+    # Unpacks bytes into bitstrings
     @wraps(func)
     def wrapper(by, *args):
         return func(bytes_to_board(by), *args)
     return wrapper
 
 def packoutput(func):
-    # Packs bitarrays into bytes
+    # Packs bitstrings into bytes
     @wraps(func)
     def wrapper(*args, **kwargs):
         return board_to_bytes(func(*args, **kwargs))
@@ -31,7 +31,11 @@ def packoutput(func):
 """
 MAIN GAME LOGIC
 """
-
+def initial_position():
+    initial_pos = BitArray('0b0') * area * 2
+    hand = BitArray('0b0110')
+    initial_pos.append(hand * 4)
+    return initial_pos
 
 """
 SYMMETRY FUNCTIONS
