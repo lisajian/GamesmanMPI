@@ -37,9 +37,6 @@ def initial_position():
     initial_pos.append(hand * 4)
     return initial_pos
 
-def primitive(state):
-
-
 """
 SYMMETRY FUNCTIONS
 """
@@ -70,6 +67,23 @@ def board_set(board, x, y, letter):
     else:
         board[t_index] = False
         board[o_index] = False
+
+# Returns letters left for Player 1 or Player 2 on board
+def get_hand_count(board, player, letter):
+    player_offset = 8 * (player - 1)
+    hand_offset = 0 if letter == T else 4
+    start_index = area * 2 + player_offset + hand_offset
+
+    return board[start_index:start_index + 4].int
+
+# Decrements player 1 or player 2's number of letter in hand on board
+def decr_hand_count(board, player, letter):
+    player_offset = 8 * (player - 1)
+    hand_offset = 0 if letter == T else 4
+    start_index = area * 2 + player_offset + hand_offset
+
+    new_count = board[start_index:start_index + 4].int - 1
+    board[start_index:start_index + 4] = new_count
 
 def board_to_bytes(board):
     return board.bytes.decode('ISO-8859-1')
