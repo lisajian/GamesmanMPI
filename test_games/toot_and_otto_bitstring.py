@@ -37,6 +37,9 @@ def initial_position():
     initial_pos.append(hand * 4)
     return initial_pos
 
+def primitive(state):
+
+
 """
 SYMMETRY FUNCTIONS
 """
@@ -45,6 +48,29 @@ SYMMETRY FUNCTIONS
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
+# Gets the letter of an (x, y) coordinate in board
+def board_get(board, x, y):
+    if board[int(length  * y + x)]:
+        return T
+    elif board[int(area + length * y + x)]:
+        return O
+    else:
+        return BLANK
+
+# Sets (x, y) on board to letter
+def board_set(board, x, y, letter):
+    t_index = int(length * y + x)
+    o_index = int(area + length * y + x)
+    if letter == T:
+        board[t_index] = True
+        board[o_index] = False
+    elif letter == O:
+        board[t_index] = True
+        board[o_index] = False
+    else:
+        board[t_index] = False
+        board[o_index] = False
+
 def board_to_bytes(board):
     return board.bytes.decode('ISO-8859-1')
 
