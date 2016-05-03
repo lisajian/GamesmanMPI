@@ -117,7 +117,7 @@ def do_move(board, move):
 """
 SYMMETRY FUNCTIONS
 """
-
+# TODO: Add symmetry
 """
 TESTS AND TESTING HELPERS
 """
