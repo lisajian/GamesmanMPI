@@ -33,13 +33,17 @@ def packoutput(func):
 """
 MAIN GAME LOGIC
 """
+@packoutput
 def initial_position():
     initial_pos = BitArray('0b0') * area * 2
     hand = BitArray('0b0110')
     initial_pos.append(hand * 4)
     initial_pos.append('0b1')
+    while len(initial_pos) % 8 != 0:
+        initial_pos.append('0b0')
     return initial_pos
 
+@unpackinput
 def primitive(board):
     def check_for_words(board):
         score = {}
@@ -62,11 +66,12 @@ def primitive(board):
                         score[word] += 1
                     if word_test(board, x+1, y-1, word, 1, -1, 1):
                         score[word] += 1
-        print(score)
         return score
     def word_test(board, x, y, word, dx, dy, pos):
         if pos >= 4:
             return True
+        if x < 0 or y < 0 or x >= length or y >= height:
+            return False
         if char_rep[board_get(board, x, y)] != word[pos]:
             return False
         return word_test(board, x+dx, y+dy, word, dx, dy, pos + 1)
@@ -79,6 +84,36 @@ def primitive(board):
     else:
         return src.utils.WIN
 
+@unpackinput
+def gen_moves(board):
+    player = 1 if is_player1_turn(board) else 2
+    available_Ts = get_hand_count(board, player, T)
+    available_Os = get_hand_count(board, player, O)
+
+    moves = []
+    for x in range(length):
+        if board_get(board, x, height - 1) == BLANK:
+            if available_Ts > 0:
+                moves.append((x, T))
+            if available_Os > 0:
+                moves.append((x, O))
+    return moves
+
+@unpackinput
+@packoutput
+def do_move(board, move):
+    x = move[0]
+    letter = move[1]
+    player = 1 if is_player1_turn(board) else 2
+    new_board = board[:]
+    decr_hand_count(new_board, player, letter)
+    incr_turn(new_board)
+
+    for y in range(height):
+        if board_get(new_board, x, y) == BLANK:
+            board_set(new_board, x, y, letter)
+            return new_board
+
 """
 SYMMETRY FUNCTIONS
 """
@@ -86,6 +121,7 @@ SYMMETRY FUNCTIONS
 """
 TESTS AND TESTING HELPERS
 """
+@unpackinput
 def print_board(board):
     rows = []
     for y in range(height):
@@ -100,6 +136,7 @@ def print_board(board):
     else:
         print("Player Two's Move")
 
+
 def primitive_test():
     b = initial_position()
     board_set(b, 0, 0, T)
@@ -109,6 +146,30 @@ def primitive_test():
 
     print_board(b)
     print(src.utils.STATE_MAP[primitive(b)])
+
+def example(num_times):
+    import random
+
+    print('the initial position is the following:')
+    print_board(initial_position())
+    possible_actions = gen_moves(initial_position())
+    print('primitive value:')
+    print(primitive(initial_position()))
+
+    for i in range(num_times):
+        print("Starting game " + str(i))
+        possible_actions = gen_moves(initial_position())
+        board = initial_position()
+
+        while primitive(board) == src.utils.UNDECIDED:
+            action = random.randint(0,len(possible_actions) - 1)
+            board = do_move(board, possible_actions[action])
+            print_board(board)
+            possible_actions = gen_moves(board)
+            print('New possible actions:')
+            print(possible_actions)
+            print(src.utils.STATE_MAP[primitive(board)])
+            print()
 
 """
 HELPER FUNCTIONS FOR BIT MANIPULATION
