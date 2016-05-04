@@ -1,5 +1,7 @@
 tests/solve_results.txt
 tests/time_results.txt
+tests/solve_results_np.txt
+tests/time_results_np.txt
 data/statistics.txt
 stats/
 

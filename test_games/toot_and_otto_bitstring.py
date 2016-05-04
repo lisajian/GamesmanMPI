@@ -127,7 +127,7 @@ def print_board(board):
     for y in range(height):
         st = ""
         for x in range(length):
-            st += char_rep[board_get(board, x, y)]
+            st += char_rep[board_get(board, x, y)] + " "
         rows.append(st)
     for row in rows[::-1]:
         print(row)
