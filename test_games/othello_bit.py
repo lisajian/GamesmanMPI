@@ -38,8 +38,7 @@ def initial_position():
     # The first length*height bits represent the white player's pieces
     # The second length*height bits represent the black player's pieces
     # The last two  groups of 8 bits represent the turn bit and the number of passes in a row
-    initial_pos = bitarray(2 * area + 16)
-    initial_pos[0:len(initial_pos)] = False
+    initial_pos = BitArray('0b0') * (2 * area + 16)
     board_set(initial_pos, length / 2 - 1, height / 2 - 1, WHITE)
     board_set(initial_pos, length / 2 - 1, height / 2, BLACK)
     board_set(initial_pos, length / 2, height / 2 - 1, BLACK)
@@ -50,10 +49,10 @@ def initial_position():
 
     # We need our board have have a length that's a multiple of eight, since we
     # convert it to a tuple of bytes
-    padding = bitarray(len(initial_pos) % 8)
-    padding.setall(False)
+    while len(initial_pos) % 8 != 0:
+        initial_pos.append('0b0')
 
-    return initial_pos + padding
+    return initial_pos
 
 @unpackinput
 def primitive(board):
@@ -176,7 +175,7 @@ def print_board(board):
     for x in range(length):
         row = ""
         for y in range(height):
-            row = row + char_rep[board_get(board, x, y)]
+            row = row + char_rep[board_get(board, x, y)] + " "
         print(row)
     print("Player's turn: ", current_turn(board))
 
@@ -198,13 +197,13 @@ def example(num_times):
 
         while primitive(board) == src.utils.UNDECIDED:
             action = random.randint(0,len(possible_actions) - 1)
-            board = do_move(board, possible_actions[0])
+            board = do_move(board, possible_actions[action])
             print_board(board)
             possible_actions = gen_moves(board)
             print('New possible actions:')
             print(possible_actions)
             print('primitive value:')
-            print(primitive(board))
+            print(src.utils.STATE_MAP[primitive(board)])
 
 
 def primitive_example():
@@ -277,39 +276,38 @@ def flip(board, x, y):
 
 # Returns turn count of board
 def turn_count(board):
-    start = 2 * area
-    return int.from_bytes(board[start:start + 8].tobytes(), byteorder="big", signed=False)
+    start_index = 2 * area
+    return board[start_index:start_index + 8].int
 
 # Increments the turn in such a way that it remains either one or two
 def incr_turn(board):
     new_turn = (turn_count(board)) % 2 + 1
     start = 2 * area
-    a = bitarray(endian='big')
-    a.frombytes(new_turn.to_bytes(1, byteorder='big', signed=False))
+    a = BitArray('0b00000000')
+    a.int = new_turn
     board[start:start + 8] = a
 
 # Returns number of passes in a row
 def pass_count(board):
-    start = 2 * area + 8
-    return int.from_bytes(board[start:start + 8].tobytes(), byteorder="big", signed=False)
+    start_index = 2 * area + 8
+    return board[start_index:start_index + 8].int
 
 # Increments pass counter by one
 def incr_pass(board):
     new_pass = pass_count(board) + 1
     start = 2 * area + 8
-    a = bitarray(endian='big')
-    a.frombytes(new_pass.to_bytes(1, byteorder='big', signed=False))
+    a = BitArray('0b00000000')
+    a.int = new_pass
     board[start:start + 8] = a
 
 # Resets pass counter to zero
 def reset_pass(board):
     start = 2 * area + 8
-    board[start:start + 8] = bitarray('00000000')
+    board[start:start + 8] = BitArray('0b00000000')
 
 # Returns true if board is full
 def full(board):
-    full_board = bitarray(area)
-    full_board.setall(True)
+    full_board = BitArray('0b1') * area
     return board[0:area] | board[area: 2 * area] == full_board
 
 # Returns whose turn it is, either WHITE or BLACK
