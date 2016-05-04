@@ -1,4 +1,4 @@
-from bitarray import bitarray
+from bitstring import BitArray
 from functools import wraps
 import src.utils
 
@@ -239,14 +239,13 @@ def player_flip(board):
 HELPER FUNCTIONS FOR BIT MANIPULATION
 STOP SCROLLING IF YOU CARE ABOUT READABILITY
 """
-# Used for packing function outputs for hashing
 def board_to_bytes(board):
-    return board.tobytes().decode('ISO-8859-1')
+    return board.bytes.decode('ISO-8859-1')
 
 # Used to unpack function input from hashable form
 def bytes_to_board(data):
-    a = bitarray(endian='big')
-    a.frombytes(data.encode('ISO-8859-1'))
+    a = BitArray()
+    a.bytes = data.encode('ISO-8859-1')
     return a
 
 # Gets the color of an (x, y) coordinate in board
