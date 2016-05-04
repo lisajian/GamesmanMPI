@@ -92,8 +92,8 @@ class Process:
             os.makedirs(folder_path)
         except OSError: # File exists.
             pass
-        self.resolved = shelve.open(folder_path + 'results.shelve')
-        self.remote = shelve.open(folder_path + 'remote.shelve')
+        self.resolved = shelve.open(folder_path + 'results.shelve', writeback=True)
+        self.remote = shelve.open(folder_path + 'remote.shelve', writeback=True)
         # As for recieving, should test them when appropriate
         # in the run loop.
         self.received = []
@@ -145,8 +145,10 @@ class Process:
             if job.game_state.is_primitive():
                 logging.info("Position " + str(job.game_state.pos) + " is primitive")
                 self.remote[job.game_state.pos] = PRIMITIVE_REMOTENESS
+                self.remote.sync()
                 job.game_state.remoteness = PRIMITIVE_REMOTENESS
                 self.resolved[job.game_state.pos] = job.game_state.primitive
+                self.resolved.sync()
                 return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
             return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
@@ -267,6 +269,7 @@ class Process:
             to_resolve = self._pending[job.job_id][0] # Job
             if to_resolve.game_state.is_primitive():
                 self.resolved[to_resolve.game_state.pos] = to_resolve.game_state.primitive
+                self.resolved.sync()
                 self.remote[to_resolve.game_state.pos] = 0
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
@@ -280,7 +283,9 @@ class Process:
                 state_red = [gs.state for gs in resolve_data]
                 #remoteness_red = [gs.remoteness for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
+                self.resolved.sync()
                 self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
+                self.remote.sync()
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
             logging.info("Resolved " + str(job.game_state.pos) +
