@@ -14,6 +14,9 @@ import logging
 import os
 import shelve
 
+# An additional in memory cache.
+from cachetools import LRUCache
+
 class Process:
     """
     Class that defines the behavior what each process should do
@@ -92,8 +95,10 @@ class Process:
             os.makedirs(folder_path)
         except OSError: # File exists.
             pass
-        self.resolved = shelve.open(folder_path + 'results.shelve', writeback=True)
-        self.remote = shelve.open(folder_path + 'remote.shelve', writeback=True)
+        self.resolved = shelve.open(folder_path + 'results.shelve')
+        self.resolved_cache = LRUCache(maxsize=100)
+        self.remote = shelve.open(folder_path + 'remote.shelve')
+        self.remote_cache = LRUCache(maxsize=100)
         # As for recieving, should test them when appropriate
         # in the run loop.
         self.received = []
@@ -134,23 +139,31 @@ class Process:
         logging.info("Machine " + str(self.rank) + " looking up " + str(job.game_state.pos))
         self.stats_dict["num_lookups"] += 1
         try:
-            res = self.resolved[job.game_state.pos]
-            rem = self.remote[job.game_state.pos]
+            res = self.resolved_cache[job.game_state.pos]
+            rem = self.remote_cache[job.game_state.pos]
             logging.info("Position " + str(job.game_state.pos) + " has been resolved")
             job.game_state.state = res
             job.game_state.remoteness = rem
             return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
-        except KeyError: # Not in dictionary.
-            # Try to see if it is_primitive:
-            if job.game_state.is_primitive():
-                logging.info("Position " + str(job.game_state.pos) + " is primitive")
-                self.remote[job.game_state.pos] = PRIMITIVE_REMOTENESS
-                self.remote.sync()
-                job.game_state.remoteness = PRIMITIVE_REMOTENESS
-                self.resolved[job.game_state.pos] = job.game_state.primitive
-                self.resolved.sync()
+        except KeyError: # Not in cache.
+            try:
+                res = self.resolved_cache[job.game_state.pos]
+                rem = self.remote_cache[job.game_state.pos]
+                logging.info("Position " + str(job.game_state.pos) + " has been resolved")
+                job.game_state.state = res
+                job.game_state.remoteness = rem
                 return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
-            return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
+            except KeyError: # Not anywhere
+                # Try to see if it is_primitive:
+                if job.game_state.is_primitive():
+                    logging.info("Position " + str(job.game_state.pos) + " is primitive")
+                    self.remote[job.game_state.pos] = PRIMITIVE_REMOTENESS
+                    self.remote_cache[job.game_state.pos] = PRIMITIVE_REMOTENESS
+                    job.game_state.remoteness = PRIMITIVE_REMOTENESS
+                    self.resolved[job.game_state.pos] = job.game_state.primitive
+                    self.resolved_cache[job.game_state.pos] = job.game_state.primitive
+                    return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
+                return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
     def _add_pending_state(self, job, children):
         # Refer to lines 179-187 for an explanation of why this
@@ -269,10 +282,11 @@ class Process:
             to_resolve = self._pending[job.job_id][0] # Job
             if to_resolve.game_state.is_primitive():
                 self.resolved[to_resolve.game_state.pos] = to_resolve.game_state.primitive
-                self.resolved.sync()
+                self.resolved_cache[to_resolve.game_state.pos] = to_resolve.game_state.primitive
                 self.remote[to_resolve.game_state.pos] = 0
-                job.game_state.state = self.resolved[to_resolve.game_state.pos]
-                job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
+                self.remote_cache[to_resolve.game_state.pos] = 0
+                job.game_state.state = self.resolved_cache[to_resolve.game_state.pos]
+                job.game_state.remoteness = self.remote_cache[to_resolve.game_state.pos]
             else:
                 resolve_data = list(self._pending[job.job_id][1:]) # [GameState, GameState, ...]
                 if __debug__:
@@ -283,9 +297,9 @@ class Process:
                 state_red = [gs.state for gs in resolve_data]
                 #remoteness_red = [gs.remoteness for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
-                self.resolved.sync()
+                self.resolved_cache[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
                 self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
-                self.remote.sync()
+                self.remote_cache[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
             logging.info("Resolved " + str(job.game_state.pos) +
