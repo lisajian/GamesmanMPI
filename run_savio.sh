@@ -1,6 +1,6 @@
 #!/bin/bash
 # Job name:
-#SBATCH --job-name=mttt_test
+#SBATCH --job-name=tootnottolru
 #
 # Partition:
 #SBATCH --partition=savio
@@ -18,5 +18,18 @@
 module load openmpi
 module load python/3.2.3
 module load mpi4py
+module load pip
+module load virtualenv/1.7.2
 
-mpiexec python3 solver_launcher.py --debug test_games/mttt.py
+#Start virtual env
+virtualenv venv
+source venv/bin/activate
+
+ICC=/global/software/sl-6.x86_64/modules/langs/intel/2013_sp1.4.211/bin/intel64/icc
+STATS_DIR=/global/scratch/kzentner/tootnottolru
+GAME=test_games/toot_and_otto_bitstring.py
+
+env CC=$ICC pip-3.2 install bitarray
+pip install cachetools
+
+mpiexec python3 solver_launcher.py -sd $STATS_DIR $GAME
