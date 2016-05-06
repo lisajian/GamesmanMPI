@@ -29,7 +29,8 @@ ICC=/global/software/sl-6.x86_64/modules/langs/intel/2013_sp1.4.211/bin/intel64/
 STATS_DIR=/global/scratch/kzentner/tootnottolru
 GAME=test_games/toot_and_otto_bitstring.py
 
-env CC=$ICC pip-3.2 install bitarray
-pip install cachetools
+# env CC=$ICC pip-3.2 install bitarray
+pip-3.2 install bitstring
+pip-3.2 install cachetools
 
 mpiexec python3 solver_launcher.py -sd $STATS_DIR $GAME
