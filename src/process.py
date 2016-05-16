@@ -100,11 +100,9 @@ class Process:
         """
         logging.info("Machine " + str(self.rank) + " looking up " + str(job.game_state.pos))
         try:
-            res = self.resolved[job.game_state.pos]
-            rem = self.remote[job.game_state.pos]
             logging.info("Position " + str(job.game_state.pos) + " has been resolved")
-            job.game_state.state = res
-            job.game_state.remoteness = rem
+            job.game_state.state = self.resolved[job.game_state.pos]
+            job.game_state.remoteness = self.remote[job.game_state.pos]
             return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
         except KeyError: # Not in dictionary
             # Try to see if it is_primitive:
