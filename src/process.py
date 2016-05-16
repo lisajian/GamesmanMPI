@@ -39,24 +39,11 @@ class Process:
         )
         return _dispatch_table[job.job_type](job)
 
-    def _queue_to_str(self, q):
-        """
-        For debugging purposes.
-        Prints the job type for each job in the job queue.
-        """
-        return ' '
-        # return ', '.join([JOB_TYPE_MAP[j.job_type] + " " + str(j.game_state.pos) for j in q.queue])
-
-    def _log_work(self, work):
-        check_for_updates = 'check_for_updates, check_for_updates'
-        logging.info("Machine " + str(self.rank) + " has " + self._queue_to_str(self.work) + " lined up to work on")
-
     def run(self):
         """
         Main loop for each process
         """
         while not Process.IS_FINISHED:
-            self._log_work(self.work)
             if self.rank == self.root and self.initial_pos.pos in self.resolved:
                 Process.IS_FINISHED = True
                 logging.info('Finished')
