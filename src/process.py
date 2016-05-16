@@ -4,11 +4,8 @@ from .game_state import GameState
 from .job import Job
 from .utils import *
 from .cache_dict import CacheDict
-if sys.version_info[0] >= 3:
-    from functools import reduce
-    from queue import PriorityQueue
-else:
-    from Queue import PriorityQueue
+from functools import reduce
+from queue import PriorityQueue
 import logging
 
 class Process:
