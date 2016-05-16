@@ -1,4 +1,3 @@
-import sys
 from mpi4py import MPI
 from .game_state import GameState
 from .job import Job
