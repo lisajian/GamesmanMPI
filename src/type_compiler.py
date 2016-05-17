@@ -1,27 +1,37 @@
-def string_mat(*args):
+def new_type(self, t, name, dim=*args):
     '''
-    Multi-dimensional string type.
-    char[arg1][arg2]...[argn]
+    Create a new type for the compiler.
+    Args is optional
     '''
-    pass
+    field = t
+    for arg in args:
+        field += '[' + args + ']'
+    return field + ' ' + name + ';\n'
+    
+def write_types(*args):
+    '''
+    Takes a series of types and writes them to
+    the structure to job.c
+    '''
+    structure = '''
+enum Job_Types {
+    FINISHED,
+    LOOK_UP,
+    RESOLVE,
+    SEND_BACK,
+    DISTRIBUTE,
+    CHECK_FOR_UPDATES,
+};
 
-def int_mat(*args):
-    '''
-    Multi-dimensional int type.
-    int[arg1][arg2]...[argn]
-    '''
-    pass
+typedef struct Job
+{
+    int job_type;
+'''
+    for arg in args:
+       structure += arg
 
-def int_type(*args):
+    structure += '''
+} Job;
     '''
-    Single int type.
-    int
-    '''
-    pass
-
-def char_type(*args):
-    '''
-    Single char type.
-    char
-    '''
-    pass
+    with open("job.c", "w") as job_file:
+        job_file.write(structure)
