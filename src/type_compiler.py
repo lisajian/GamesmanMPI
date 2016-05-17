@@ -1,11 +1,11 @@
-def new_type(self, t, name, dim=*args):
+def new_type(t, name, *args):
     '''
     Create a new type for the compiler.
     Args is optional
     '''
     field = t
     for arg in args:
-        field += '[' + args + ']'
+        field += '[' + str(arg) + ']'
     return field + ' ' + name + ';\n'
     
 def write_types(*args):
@@ -28,7 +28,7 @@ typedef struct Job
     int job_type;
 '''
     for arg in args:
-       structure += arg
+       structure += '    ' + arg
 
     structure += '''
 } Job;
