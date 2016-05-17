@@ -34,4 +34,6 @@ typedef struct Job
 } Job;
     '''
     with open("job.c", "w") as job_file:
+        # Make sure to clear it before we start
+        job_file.truncate()
         job_file.write(structure)
