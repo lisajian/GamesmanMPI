@@ -5,6 +5,8 @@ tests/time_results_np.txt
 data/statistics.txt
 stats/
 
+src/job.c
+
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
