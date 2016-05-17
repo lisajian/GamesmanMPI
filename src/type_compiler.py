@@ -3,10 +3,10 @@ def new_type(t, name, *args):
     Create a new type for the compiler.
     Args is optional
     '''
-    field = t
+    field = t + ' ' + name
     for arg in args:
         field += '[' + str(arg) + ']'
-    return field + ' ' + name + ';\n'
+    return field + ';\n'
     
 def write_types(*args):
     '''
