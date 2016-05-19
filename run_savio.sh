@@ -6,12 +6,17 @@
 #SBATCH --partition=savio
 # 
 # QoS (put into debug mode:
-#SBATCH --qos=savio_debug
+#SBATCH --qos=savio_normal
 #
 # Processors:
-#SBATCH --nodes=4
+# Based off of here: https://www.rosettacommons.org/node/3597
+#SBATCH --ntasks=384
+#
+# Impose memory requirement so that way nothing crashes:
+#SBATCH --mem-per-cpu=2G
 #
 # Mail user:
+#SBATCH --mail-type=all
 #SBATCH --mail-user=csumnicht@berkeley.edu
 
 ## Command(s) to run:
