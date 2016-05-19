@@ -8,6 +8,8 @@ class GameState:
     framework.
     """
 
+    __slots__ = ['pos', '_state', '_remoteness']
+
     INITIAL_POS = game_module.initial_position()
 
     def __init__(self, pos, remoteness=None, state=None):

@@ -11,6 +11,11 @@ class Process:
     """
     Class that defines the behavior what each process should do
     """
+
+    __slots__ = ['rank', 'root', 'initial_pos', 'resolved', 
+                 'world_size', 'comm', 'send', 'recv', 'work',
+                 'received', 'remote', '_id', '_counter',
+                 '_pending']
     IS_FINISHED = False
 
     def dispatch(self, job):

@@ -3,6 +3,9 @@ class Job:
     A job has a game state, parent, type, and also has a priority for placing
     jobs in a queue for the processes to work on.
     """
+
+    __slots__ = ['job_type', 'priority','game_state', 'parent', 'job_id']
+
     # A list of possible job types.
     FINISHED          = 0
     LOOK_UP           = 1
