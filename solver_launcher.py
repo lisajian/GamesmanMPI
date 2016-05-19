@@ -4,8 +4,6 @@ import logging
 import imp
 import argparse
 
-import pyximport
-pyximport.install()
 import src.utils
 
 parser = argparse.ArgumentParser()
