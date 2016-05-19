@@ -9,6 +9,8 @@ class CacheDict:
     frequently saves to file but has an in memory 
     read cache.
     """
+    
+    __slots__ = ['_file_dict', '_cache']
 
     def _prepare_path(self, directory, rank):
         """
