@@ -29,11 +29,8 @@ class GameState:
         Takes the current position and generates the
         children positions.
         """
-        # Raw, in other words, not a GameState object.
-        raw_states = map(lambda m: game_module.do_move(self.pos, m), game_module.gen_moves(self.pos))
-        # Wrapped, in other words, a GameState object.
-        wrapped_states = map(lambda m: GameState(m), raw_states)
-        return wrapped_states
+        states = map(lambda m: GameState(game_module.do_move(self.pos, m)), game_module.gen_moves(self.pos))
+        return states
 
     @property
     def remoteness(self):
