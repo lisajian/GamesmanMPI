@@ -29,8 +29,7 @@ class GameState:
         Takes the current position and generates the
         children positions.
         """
-        states = map(lambda m: GameState(game_module.do_move(self.pos, m)), game_module.gen_moves(self.pos))
-        return states
+        return map(lambda m: GameState(game_module.do_move(self.pos, m)), game_module.gen_moves(self.pos))
 
     @property
     def remoteness(self):
