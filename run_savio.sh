@@ -1,6 +1,6 @@
 #!/bin/bash
 # Job name:
-#SBATCH --job-name=tootnottolru
+#SBATCH --job-name=to_memfix
 #
 # Partition:
 #SBATCH --partition=savio
@@ -10,10 +10,7 @@
 #
 # Processors:
 # Based off of here: https://www.rosettacommons.org/node/3597
-#SBATCH --ntasks=384
-#
-# Impose memory requirement so that way nothing crashes:
-#SBATCH --mem-per-cpu=2G
+#SBATCH --ntasks=480
 #
 # Mail user:
 #SBATCH --mail-type=all
@@ -31,11 +28,11 @@ virtualenv venv
 source venv/bin/activate
 
 ICC=/global/software/sl-6.x86_64/modules/langs/intel/2013_sp1.4.211/bin/intel64/icc
-STATS_DIR=/global/scratch/kzentner/tootnottolru
+STATS_DIR=/global/scratch/kzentner/to_memfix
 GAME=test_games/toot_and_otto_bitstring.py
 
 # env CC=$ICC pip-3.2 install bitarray
 pip-3.2 install bitstring
 pip-3.2 install cachetools
 
-mpiexec python3 solver_launcher.py -sd $STATS_DIR $GAME
+mpiexec python3 -OO -B solver_launcher.py -sd $STATS_DIR $GAME
