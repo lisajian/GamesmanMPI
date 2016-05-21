@@ -255,5 +255,5 @@ class Process:
             ##############################
 
             # No longer need _pending[job.job_id].
-            del self._pending[job.job_id]
+            del self._pending[job.job_id][:]
             del self._counter[job.job_id]
