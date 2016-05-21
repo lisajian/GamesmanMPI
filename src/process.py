@@ -233,7 +233,8 @@ class Process:
                 self.resolved[to_resolve.game_state.pos] = to_resolve.game_state.primitive
                 self.remote[to_resolve.game_state.pos] = 0
             else:
-                resolve_data = list(self._pending[job.job_id][1:]) # [GameState, GameState, ...]
+                # [GameState, GameState, ... ]
+                resolve_data = list(self._pending[job.job_id][1:])
                 if __debug__:
                     res_str = "Resolve data:"
                     for state in resolve_data:
@@ -250,3 +251,10 @@ class Process:
                          ", remoteness: " + str(self.remote[to_resolve.game_state.pos]))
             to = Job(Job.SEND_BACK, job.game_state, to_resolve.parent, to_resolve.job_id)
             self.add_job(to)
+            ##############################
+            # CLEANUP                    #
+            ##############################
+
+            # No longer need _pending[job.job_id].
+            del self._pending[job.job_id]
+            del self._counter[job.job_id]
