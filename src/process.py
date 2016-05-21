@@ -78,11 +78,10 @@ class Process:
         # with length 2. Then once all the results have been received
         # you can compare the length, and then reduce the results.
         # solving this particular distributed task.
-        self._id = 0                                               # Job id tracker.
-        self._counter = {}                                         # A job_id -> Number of results
-                                                                   # remaining.
-        self._pending = {}                                         # job_id -> [ Job, GameStates, ... ]
-                                                                   # Resolved.
+        self._id = 0        # Job id tracker.
+        self._counter = {}  # A job_id -> Number of results
+                            # remaining.
+        self._pending = {}  # job_id -> [ Job, GameStates, ... ]
 
     def add_job(self, job):
         """
