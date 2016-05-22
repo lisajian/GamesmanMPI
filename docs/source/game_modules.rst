@@ -6,16 +6,16 @@ The GamesmanMPI solver is a powerful tool, but without games to solve, it's an e
 Game Module Specs
 ^^^^^^^^^^^^^^^^^
 
-Currently, the GamesmanMPI solver only supports python game implementations.
+Currently, the GamesmanMPI solver only supports Python game implementations.
 
 The game file requires four attributes: ``initial_position``, ``gen_moves``, ``do_move``, and ``primitive``.
 
-The game file also requires the attributes LOSS, WIN, TIE, DRAW. These attributes serve as primitives describing the game result of a position.  
+The game file also requires the attributes ``LOSS``, ``WIN``, ``TIE``, ``DRAW``. These attributes serve as primitives describing the game result of a position.  
 
-initial_position
-^^^^^^^^^^^^^^^^
+initial_position()
+^^^^^^^^^^^^^^^^^^
 
-``initial_position`` is a variable equal to the game's starting position.
+The function ``initial_position`` returns the game's starting position.
 
 gen_moves(position)
 ^^^^^^^^^^^^^^^^^^^
