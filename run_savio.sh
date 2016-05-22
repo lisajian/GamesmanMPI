@@ -15,6 +15,9 @@
 # Mail user:
 #SBATCH --mail-type=all
 #SBATCH --mail-user=csumnicht@berkeley.edu
+#
+# Requeue:
+#SBATCH --requeue
 
 ## Command(s) to run:
 module load openmpi
