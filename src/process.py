@@ -7,12 +7,13 @@ from functools import reduce
 from queue import PriorityQueue
 import logging
 
+
 class Process:
     """
     Class that defines the behavior what each process should do
     """
 
-    __slots__ = ['rank', 'root', 'initial_pos', 'resolved', 
+    __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
                  'world_size', 'comm', 'send', 'recv', 'work',
                  'received', 'remote', '_id', '_counter',
                  '_pending']
@@ -39,18 +40,24 @@ class Process:
         Main loop for each process
         """
         while not Process.IS_FINISHED:
-            if self.rank == self.root and self.initial_pos.pos in self.resolved:
+            if (
+                self.rank == self.root and
+                self.initial_pos.pos in self.resolved
+               ):
                 Process.IS_FINISHED = True
                 logging.info('Finished')
-                print (to_str(self.resolved[self.initial_pos.pos]) 
-                     + " in "
-                     + str(self.remote[self.initial_pos.pos]) + " moves")
+                print(
+                    to_str(self.resolved[self.initial_pos.pos]) +
+                    " in " +
+                    str(self.remote[self.initial_pos.pos]) +
+                    " moves"
+                )
                 self.comm.Abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
             job = self.work.get()
             result = self.dispatch(job)
-            if result is None: # Check for updates returns nothing.
+            if result is None:  # Check for updates returns nothing.
                 continue
             self.add_job(result)
 
@@ -78,10 +85,13 @@ class Process:
         # with length 2. Then once all the results have been received
         # you can compare the length, and then reduce the results.
         # solving this particular distributed task.
-        self._id = 0        # Job id tracker.
-        self._counter = {}  # A job_id -> Number of results
-                            # remaining.
-        self._pending = {}  # job_id -> [ Job, GameStates, ... ]
+
+        # Job id tracker.
+        self._id = 0
+        # A job_id -> Number of results remaining.
+        self._counter = {}
+        # job_id -> [ Job, GameStates, ... ]
+        self._pending = {}
 
     def add_job(self, job):
         """
@@ -94,7 +104,7 @@ class Process:
         """
         Occurs when the root node has detected that the game has been solved
         """
-        IS_FINISHED = True
+        self.IS_FINISHED = True
 
     def lookup(self, job):
         """
@@ -102,20 +112,38 @@ class Process:
         resolved list. Returns the result if this is the case, None
         otherwise.
         """
-        logging.info("Machine " + str(self.rank) + " looking up " + str(job.game_state.pos))
+        logging.info(
+            "Machine " +
+            str(self.rank) +
+            " looking up " +
+            str(job.game_state.pos)
+        )
         try:
-            logging.info("Position " + str(job.game_state.pos) + " has been resolved")
+            logging.info(
+                "Position " +
+                str(job.game_state.pos) +
+                " has been resolved"
+            )
             job.game_state.state = self.resolved[job.game_state.pos]
             job.game_state.remoteness = self.remote[job.game_state.pos]
             return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
-        except KeyError: # Not in dictionary
+        except KeyError:  # Not in dictionary
             # Try to see if it is_primitive:
             if job.game_state.is_primitive():
-                logging.info("Position " + str(job.game_state.pos) + " is primitive")
+                logging.info(
+                    "Position " +
+                    str(job.game_state.pos) +
+                    " is primitive"
+                )
                 self.remote[job.game_state.pos] = PRIMITIVE_REMOTENESS
                 job.game_state.remoteness = PRIMITIVE_REMOTENESS
                 self.resolved[job.game_state.pos] = job.game_state.primitive
-                return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
+                return Job(
+                    Job.SEND_BACK,
+                    job.game_state,
+                    job.parent,
+                    job.job_id
+                )
             # Not a primitive.
             return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
@@ -138,19 +166,27 @@ class Process:
         """
         children = list(job.game_state.expand())
         # Add new pending state information.
-        logging.info('Found children ' + ', '.join([str(c.pos) for c in children]))
+        logging.info(
+            'Found children ' +
+            ', '.join([str(c.pos) for c in children])
+        )
         self._add_pending_state(job, children)
-        logging.info('Found children ' + ', '.join([str(c.pos) for c in children]))
+        logging.info(
+            'Found children ' +
+            ', '.join([str(c.pos) for c in children])
+        )
         # Keep a list of the requests made by isend. Something may
         # fail, so we will need to worry about error checking at
         # some point.
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
-            logging.info("Machine " + str(self.rank)
-                       + " found child " + str(new_job.game_state.pos)
-                       + ", sending to " + str(child.get_hash(self.world_size)))
+            logging.info(
+                "Machine " + str(self.rank) +
+                " found child " + str(new_job.game_state.pos) +
+                ", sending to " + str(child.get_hash(self.world_size))
+            )
 
-            self.send(new_job, dest = child.get_hash(self.world_size))
+            self.send(new_job, dest=child.get_hash(self.world_size))
 
         self._update_id()
 
@@ -174,7 +210,11 @@ class Process:
         Send the job back to the node who asked for the computation
         to be done.
         """
-        logging.info("Machine " + str(self.rank) + " is sending back " + str(job.game_state.pos) + " to " + str(job.parent))
+        logging.info(
+            "Machine " + str(self.rank) +
+            " is sending back " + str(job.game_state.pos) +
+            " to " + str(job.parent)
+        )
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
         self.send(resolve_job, dest=resolve_job.parent)
 
@@ -185,7 +225,7 @@ class Process:
         nums = (0, 3, 2, 1)
         states = (WIN, DRAW, TIE, LOSS)
 
-        if res2 == None:
+        if res2 is None:
             return negate(res1)
         max_num = max(nums[res1], nums[res2])
         return negate(states[max_num])
@@ -206,12 +246,20 @@ class Process:
             elif rem1.state == WIN and rem2.state == LOSS:
                 return GameState(None, rem2.remoteness, LOSS)
             else:
-                return GameState(None, min(rem1.remoteness, rem2.remoteness), LOSS)
+                return GameState(
+                    None,
+                    min(rem1.remoteness, rem2.remoteness),
+                    LOSS
+                )
         elif rem2.state == WIN and rem1.state == WIN:
             return GameState(None, max(rem1.remoteness, rem2.remoteness), WIN)
         else:
             # Use rem1.state by default, but rem2.state should work too.
-            return GameState(None, max(rem1.remoteness, rem2.remoteness), rem1.state)
+            return GameState(
+                None,
+                max(rem1.remoteness, rem2.remoteness),
+                rem1.state
+            )
 
     def reduce_helper(self, function, data):
         if len(data) == 1:
@@ -225,11 +273,15 @@ class Process:
         LOSS, TIE, or DRAW.
         """
         self._counter[job.job_id] -= 1
-        self._pending[job.job_id].append(job.game_state) # [Job, GameState, ... ]
-        if self._counter[job.job_id] == 0: # Resolve _pending.
-            to_resolve = self._pending[job.job_id][0] # Job
+        # [Job, GameState, ... ]
+        self._pending[job.job_id].append(job.game_state)
+        # Resolve _pending
+        if self._counter[job.job_id] == 0:
+            # [Job, GameState, ...] -> Job
+            to_resolve = self._pending[job.job_id][0]
             if to_resolve.game_state.is_primitive():
-                self.resolved[to_resolve.game_state.pos] = to_resolve.game_state.primitive
+                self.resolved[to_resolve.game_state.pos] = \
+                    to_resolve.game_state.primitive
                 self.remote[to_resolve.game_state.pos] = 0
             else:
                 # [GameState, GameState, ... ]
@@ -237,18 +289,33 @@ class Process:
                 if __debug__:
                     res_str = "Resolve data:"
                     for state in resolve_data:
-                        res_str = res_str + " " + str(state.pos) + "/" + str(state.state) + "/" + str(state.remoteness)
+                        res_str = res_str + " " + \
+                            str(state.pos) + "/" + \
+                            str(state.state) + "/" + \
+                            str(state.remoteness)
                     logging.info(res_str)
                 state_red = [gs.state for gs in resolve_data]
-                #remoteness_red = [gs.remoteness for gs in resolve_data]
-                self.resolved[to_resolve.game_state.pos] = self.reduce_helper(self._res_red, state_red)
-                self.remote[to_resolve.game_state.pos] = self.reduce_helper(self._remote_red, resolve_data).remoteness + 1
+                self.resolved[to_resolve.game_state.pos] = \
+                    self.reduce_helper(self._res_red, state_red)
+                self.remote[to_resolve.game_state.pos] = \
+                    self.reduce_helper(
+                        self._remote_red,
+                        resolve_data
+                    ).remoteness + 1
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
-                job.game_state.remoteness = self.remote[to_resolve.game_state.pos]
-            logging.info("Resolved " + str(job.game_state.pos) +
-                         " to " + str(job.game_state.state) +
-                         ", remoteness: " + str(self.remote[to_resolve.game_state.pos]))
-            to = Job(Job.SEND_BACK, job.game_state, to_resolve.parent, to_resolve.job_id)
+                job.game_state.remoteness = \
+                    self.remote[to_resolve.game_state.pos]
+            logging.info(
+                "Resolved " + str(job.game_state.pos) +
+                " to " + str(job.game_state.state) +
+                ", remoteness: " + str(self.remote[to_resolve.game_state.pos])
+            )
+            to = Job(
+                Job.SEND_BACK,
+                job.game_state,
+                to_resolve.parent,
+                to_resolve.job_id
+            )
             self.add_job(to)
             ##############################
             # CLEANUP                    #
