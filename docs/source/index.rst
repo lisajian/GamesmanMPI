@@ -9,6 +9,7 @@ Guide
 
    game_modules
    solver
+   examples
    about 
 
 
