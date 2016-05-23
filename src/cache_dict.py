@@ -3,13 +3,14 @@ import shelve
 
 from cachetools import LRUCache
 
+
 class CacheDict:
     """
-    Dictionary wrapper that creates a dictionary that 
-    frequently saves to file but has an in memory 
+    Dictionary wrapper that creates a dictionary that
+    frequently saves to file but has an in memory
     read cache.
     """
-    
+
     __slots__ = ['_file_dict', '_cache']
 
     def _prepare_path(self, directory, rank):
@@ -18,7 +19,7 @@ class CacheDict:
         the directory plays nice with the other functions
         that require it.
         """
-        if directory == None:
+        if directory is None:
             directory = ''
         else:
             if directory[-1] != '/':
@@ -26,15 +27,17 @@ class CacheDict:
         directory = directory + 'stats/' + str(rank) + '/'
         try:
             os.makedirs(directory)
-        except OSError: # File exists.
+        except OSError:  # File exists.
             pass
 
         return directory
 
     def __init__(self, name, directory, rank, max_size=100):
-        self._file_dict = shelve.open(self._prepare_path(directory, rank) + name + ".shelve")
+        self._file_dict = shelve.open(
+            self._prepare_path(directory, rank) + name + ".shelve"
+        )
         self._cache = LRUCache(maxsize=max_size)
-    
+
     def __getitem__(self, key):
         try:
             # Need the additional step in case of KeyError
