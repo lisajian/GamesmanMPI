@@ -1,5 +1,4 @@
 from mpi4py import MPI
-import inspect
 import logging
 import imp
 import argparse
@@ -7,13 +6,23 @@ import argparse
 import src.utils
 
 parser = argparse.ArgumentParser()
-parser.add_argument("game_file", help="game to solve for")
+parser.add_argument(
+    "game_file",
+    help="game to solve for"
+)
 
-parser.add_argument("--debug", help="Enables or disables logging",
-                               action="store_true")
+parser.add_argument(
+    "--debug",
+    help="Enables or disables logging",
+    action="store_true"
+)
 
-parser.add_argument("-sd", "--statsdir", help="location to store statistics about game",
-                               action="store")
+parser.add_argument(
+    "-sd",
+    "--statsdir",
+    help="location to store statistics about game",
+    action="store"
+)
 
 args = parser.parse_args()
 
