@@ -1,6 +1,7 @@
 import hashlib
 from .utils import *
 
+
 class GameState:
     """
     Wrapper for the idea of a GameState, not needed
@@ -14,22 +15,29 @@ class GameState:
 
     def __init__(self, pos, remoteness=None, state=None):
         self.pos = pos
-        self._state = state           # Useful optional constructor for reduction
-        self._remoteness = remoteness # purposes.
+        # Useful optional constructor for reduction purposes
+        self._state = state
+        self._remoteness = remoteness
 
     def get_hash(self, world_size):
         """
         Returns the appropriate hash of a given GameState object.
         Based off of the value of it's position.
         """
-        return int(hashlib.md5(str(self.pos).encode('utf-8')).hexdigest(), 16) % world_size
+        return int(
+            hashlib.md5(str(self.pos).encode('utf-8')).hexdigest(),
+            16
+        ) % world_size
 
     def expand(self):
         """
         Takes the current position and generates the
         children positions.
         """
-        return map(lambda m: GameState(game_module.do_move(self.pos, m)), game_module.gen_moves(self.pos))
+        return map(
+            lambda m: GameState(game_module.do_move(self.pos, m)),
+            game_module.gen_moves(self.pos)
+        )
 
     @property
     def remoteness(self):
@@ -53,7 +61,7 @@ class GameState:
         Determines whether the state is a:
         WIN, LOSS, TIE, DRAW or UNDECIDED
         """
-        if self._state == None:
+        if self._state is None:
             return game_module.primitive(self.pos)
         else:
             return self._state
