@@ -34,7 +34,7 @@ class CacheDict:
 
     def __init__(self, name, directory, rank, max_size=100):
         self._file_dict = shelve.open(
-            self._prepare_path(directory, rank) + name + ".shelve"
+            self._prepare_path(directory, rank) + name
         )
         self._cache = LRUCache(maxsize=max_size)
 
