@@ -1,6 +1,9 @@
 Using the Solver
 ================
 
+Basic Usage
+^^^^^^^^^^^
+
 Games to be solved are loaded via the command line, with the following syntax:
 
 .. code-block::
@@ -17,5 +20,4 @@ For example, you could load our example game, Four-To-One, by running
 Your game file must follow the conventions outlined in the API
 
 The Solver for Developers
-=========================
-
+^^^^^^^^^^^^^^^^^^^^^^^^^
