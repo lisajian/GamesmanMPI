@@ -41,6 +41,7 @@ from src.game_state import GameState
 from src.job import Job
 from src.process import Process
 
+
 def validate(mod):
     try:
         getattr(mod, 'initial_position')
@@ -59,15 +60,29 @@ lvl = logging.CRITICAL
 if args.debug:
     lvl = logging.DEBUG
 
-logging.basicConfig(filename='logs/solver_log' + str(comm.Get_rank()) + '.log', filemode='w', level=lvl)
+logging.basicConfig(
+    filename='logs/solver_log' + str(comm.Get_rank()) + '.log',
+    filemode='w',
+    level=lvl
+)
 
 initial_position = src.utils.game_module.initial_position()
 
-process = Process(comm.Get_rank(), comm.Get_size(), 
-                  comm, stats_dir=args.statsdir)
+process = Process(
+    comm.Get_rank(),
+    comm.Get_size(),
+    comm,
+    stats_dir=args.statsdir
+)
+
 if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
-    initial_job = Job(Job.LOOK_UP, initial_gamestate, process.rank, Job.INITIAL_JOB_ID)
+    initial_job = Job(
+        Job.LOOK_UP,
+        initial_gamestate,
+        process.rank,
+        Job.INITIAL_JOB_ID
+    )
     process.add_job(initial_job)
 
 process.run()
