@@ -6,6 +6,7 @@ from .cache_dict import CacheDict
 from functools import reduce
 from queue import PriorityQueue
 import logging
+from chest import Chest
 
 
 class Process:
@@ -89,9 +90,9 @@ class Process:
         # Job id tracker.
         self._id = 0
         # A job_id -> Number of results remaining.
-        self._counter = {}
+        self._counter = CacheDict("counter", stats_dir, self.rank)
         # job_id -> [ Job, GameStates, ... ]
-        self._pending = {}
+        self._pending = CacheDict("pending", stats_dir, self.rank)
 
     def add_job(self, job):
         """

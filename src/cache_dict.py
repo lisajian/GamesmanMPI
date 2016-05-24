@@ -41,16 +41,36 @@ class CacheDict:
     def __getitem__(self, key):
         try:
             # Need the additional step in case of KeyError
-            return self._cache[key]
+            if isinstance(key, int):
+                return self._cache[str(key)]
+            else:
+                return self._cache[key]
         except KeyError:
             # Need the additional step in case of KeyError
-            item = self._file_dict[key]
-            self._cache[key] = item
-            return item
+            if isinstance(key, int):
+                item = self._file_dict[str(key)]
+                self._cache[str(key)] = item
+                return item
+            else:
+                item = self._file_dict[key]
+                self._cache[key] = item
+                return item
 
     def __setitem__(self, key, value):
-        self._file_dict[key] = value
-        self._cache[key] = value
+        if isinstance(key, int):
+            self._file_dict[str(key)] = value
+            self._cache[str(key)] = value
+        else:
+            self._file_dict[key] = value
+            self._cache[key] = value
+
+    def __delitem__(self, key):
+        if isinstance(key, int):
+            del self._file_dict[str(key)]
+            del self._cache[str(key)]
+        else:
+            del self._file_dict[str(key)]
+            del self._cache[str(key)]
 
     def __contains__(self, item):
         return item in self._file_dict
