@@ -6,7 +6,6 @@ from .cache_dict import CacheDict
 from functools import reduce
 from queue import PriorityQueue
 import logging
-from chest import Chest
 
 
 class Process:
