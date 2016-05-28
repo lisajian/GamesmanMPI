@@ -13,7 +13,10 @@ class CacheDict:
 
     __slots__ = ['_file_dict', '_cache']
 
-    def _prepare_path(self, directory, rank):
+    def __len__(self):
+        return len(self._file_dict)
+
+    def _prepare_path(self, directory, rank, t="stats"):
         """
         Helper function. Takes a directory and makes sure
         the directory plays nice with the other functions
@@ -24,7 +27,7 @@ class CacheDict:
         else:
             if directory[-1] != '/':
                 directory = directory + '/'
-        directory = directory + 'stats/' + str(rank) + '/'
+        directory = directory + t + '/' + str(rank) + '/'
         try:
             os.makedirs(directory)
         except OSError:  # File exists.
@@ -32,9 +35,9 @@ class CacheDict:
 
         return directory
 
-    def __init__(self, name, directory, rank, max_size=100):
+    def __init__(self, name, directory, rank, max_size=100, t="stats"):
         self._file_dict = shelve.open(
-            self._prepare_path(directory, rank) + name
+            self._prepare_path(directory, rank, t=t) + name
         )
         self._cache = LRUCache(maxsize=max_size)
 

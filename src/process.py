@@ -89,9 +89,9 @@ class Process:
         # Job id tracker.
         self._id = 0
         # A job_id -> Number of results remaining.
-        self._counter = CacheDict("counter", stats_dir, self.rank)
+        self._counter = CacheDict("counter", stats_dir, self.rank, t="work")
         # job_id -> [ Job, GameStates, ... ]
-        self._pending = CacheDict("pending", stats_dir, self.rank)
+        self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
 
     def add_job(self, job):
         """
@@ -323,4 +323,5 @@ class Process:
 
             # No longer need _pending[job.job_id].
             del self._pending[job.job_id][:]
+            del self._pending[job.job_id]
             del self._counter[job.job_id]
