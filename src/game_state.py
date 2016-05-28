@@ -1,5 +1,5 @@
 import hashlib
-from .utils import *
+from .utils import UNKNOWN_REMOTENESS, PRIMITIVES, game_module
 
 
 class GameState:
