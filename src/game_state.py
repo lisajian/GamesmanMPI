@@ -86,4 +86,5 @@ class GameState:
         return game_module.primitive(self.pos)
 
     def __str__(self):
-        return "Pos: {0}, State: {1}, Remoteness: {2}".format(self.pos, self.state, self.remoteness)
+        return "Pos: {0}, State: {1}, Remoteness: {2}" \
+            .format(self.pos, self.state, self.remoteness)
