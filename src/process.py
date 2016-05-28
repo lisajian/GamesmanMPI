@@ -1,7 +1,8 @@
 from mpi4py import MPI
 from .game_state import GameState
 from .job import Job
-from .utils import *
+from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
+                   TIE, DRAW, to_str
 from .cache_dict import CacheDict
 from functools import reduce
 from queue import PriorityQueue
