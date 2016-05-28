@@ -37,9 +37,9 @@ comm.Barrier()
 
 # Now it is safe to import the classes we need as everything
 # has now been initialized correctly.
-from src.game_state import GameState
-from src.job import Job
-from src.process import Process
+from src.game_state import GameState  # NOQA
+from src.job import Job  # NOQA
+from src.process import Process  # NOQA
 
 
 def validate(mod):
