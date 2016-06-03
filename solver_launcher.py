@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from mpi4py import MPI
-import logging
 import imp
 import argparse
 
@@ -65,17 +64,9 @@ def validate(mod):
 # Make sure the game is properly defined
 validate(src.utils.game_module)
 
-# Set up our logging system
-lvl = logging.CRITICAL
 if args.debug:
     send = debug_send(comm.send)
     recv = debug_recv(comm.recv)
-
-logging.basicConfig(
-    filename='logs/solver_log' + str(comm.Get_rank()) + '.log',
-    filemode='w',
-    level=lvl
-)
 
 initial_position = src.utils.game_module.initial_position()
 
