@@ -62,13 +62,13 @@ class Process:
                 continue
             self.add_job(result)
 
-    def __init__(self, rank, world_size, comm, stats_dir=''):
+    def __init__(self, rank, world_size, comm, send, recv, stats_dir=''):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
 
-        self.send = self.comm.send
-        self.recv = self.comm.recv
+        self.send = send
+        self.recv = recv
 
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)

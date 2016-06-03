@@ -30,6 +30,13 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
+# May be later modified for debugging purposes.
+# Because comm.send is read only we need to make a
+# new variable.
+
+send = comm.send
+recv = comm.recv
+
 # Load file and give it to each process.
 game_module = imp.load_source('game_module', args.game_file)
 src.utils.game_module = game_module
@@ -42,6 +49,7 @@ comm.Barrier()
 from src.game_state import GameState  # NOQA
 from src.job import Job  # NOQA
 from src.process import Process  # NOQA
+from src.debug import debug_send, debug_recv  # NOQA
 
 
 def validate(mod):
@@ -60,7 +68,8 @@ validate(src.utils.game_module)
 # Set up our logging system
 lvl = logging.CRITICAL
 if args.debug:
-    lvl = logging.DEBUG
+    send = debug_send(comm.send)
+    recv = debug_recv(comm.recv)
 
 logging.basicConfig(
     filename='logs/solver_log' + str(comm.Get_rank()) + '.log',
@@ -74,6 +83,8 @@ process = Process(
     comm.Get_rank(),
     comm.Get_size(),
     comm,
+    send,
+    recv,
     stats_dir=args.statsdir
 )
 
