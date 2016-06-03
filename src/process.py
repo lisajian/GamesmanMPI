@@ -149,6 +149,7 @@ class Process:
         """
         children = list(job.game_state.expand())
         # Add new pending state information.
+        self._add_pending_state(job, children)
         # Keep a list of the requests made by isend. Something may
         # fail, so we will need to worry about error checking at
         # some point.
