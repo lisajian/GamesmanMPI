@@ -1,9 +1,11 @@
+import datetime
+
+
 def debug_send(send):
     def func_wrapper(*args, **kwargs):
-        print("Sent: ", end='')
         for arg in args:
-            print(arg, end='')
-        print()
+            print('Sent: {} at {:%Y-%m-%d %H:%M:%S:%f}'
+                  .format(arg, datetime.datetime.now()))
         return send(*args, **kwargs)
     return func_wrapper
 
@@ -11,7 +13,7 @@ def debug_send(send):
 def debug_recv(recv):
     def func_wrapper(*args, **kwargs):
         res = recv(*args, **kwargs)
-        print("Received:", end='')
-        print(res)
-        return recv(*args, **kwargs)
+        print('Received: {} at {:%Y-%m-%d %H:%M:%S:%f}'
+              .format(res, datetime.datetime.now()))
+        return res
     return func_wrapper
