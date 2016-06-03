@@ -5,6 +5,7 @@ tests/time_results_np.txt
 data/statistics.txt
 stats/
 work/
+logs/proc*
 
 .DS_Store
 

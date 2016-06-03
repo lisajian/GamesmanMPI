@@ -14,7 +14,7 @@ def init_debug(rank):
     """
     global process_rank
     process_rank = rank
-    logging.basicConfig(filename='logs/' + str(rank), level=logging.DEBUG)
+    logging.basicConfig(filename='logs/proc' + str(rank), level=logging.DEBUG)
 
 
 def debug_send(send):
