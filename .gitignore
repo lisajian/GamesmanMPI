@@ -4,6 +4,7 @@ tests/solve_results_np.txt
 tests/time_results_np.txt
 data/statistics.txt
 stats/
+work/
 
 .DS_Store
 
