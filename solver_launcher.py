@@ -48,7 +48,7 @@ comm.Barrier()
 from src.game_state import GameState  # NOQA
 from src.job import Job  # NOQA
 from src.process import Process  # NOQA
-from src.debug import debug_send, debug_recv  # NOQA
+import src.debug  # NOQA
 
 
 def validate(mod):
@@ -65,8 +65,9 @@ def validate(mod):
 validate(src.utils.game_module)
 
 if args.debug:
-    send = debug_send(comm.send)
-    recv = debug_recv(comm.recv)
+    src.debug.init_debug(comm.Get_rank())
+    send = src.debug.debug_send(comm.send)
+    recv = src.debug.debug_recv(comm.recv)
 
 initial_position = src.utils.game_module.initial_position()
 
