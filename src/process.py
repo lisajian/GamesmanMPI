@@ -2,9 +2,8 @@ from mpi4py import MPI
 from .game_state import GameState
 from .job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
-                   TIE, DRAW, to_str
+                   TIE, DRAW, to_str, reduce_helper
 from .cache_dict import CacheDict
-from functools import reduce
 from queue import PriorityQueue
 
 
@@ -226,11 +225,6 @@ class Process:
                 rem1.state
             )
 
-    def reduce_helper(self, function, data):
-        if len(data) == 1:
-            return function(data[0], None)
-        return reduce(function, data)
-
     def _cleanup(self, job):
         del self._pending[job.job_id][:]
         del self._pending[job.job_id]
@@ -258,9 +252,9 @@ class Process:
                 resolve_data = list(self._pending[job.job_id][1:])
                 state_red = [gs.state for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = \
-                    self.reduce_helper(self._res_red, state_red)
+                    reduce_helper(self._res_red, state_red)
                 self.remote[to_resolve.game_state.pos] = \
-                    self.reduce_helper(
+                    reduce_helper(
                         self._remote_red,
                         resolve_data
                     ).remoteness + 1
