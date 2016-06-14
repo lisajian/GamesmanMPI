@@ -2,7 +2,7 @@ from mpi4py import MPI
 from .game_state import GameState
 from .job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
-                   TIE, DRAW, to_str, reduce_helper
+                   TIE, DRAW, to_str, reduce_singleton
 from .cache_dict import CacheDict
 from queue import PriorityQueue
 
@@ -252,9 +252,9 @@ class Process:
                 resolve_data = list(self._pending[job.job_id][1:])
                 state_red = [gs.state for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = \
-                    reduce_helper(self._res_red, state_red)
+                    reduce_singleton(self._res_red, state_red)
                 self.remote[to_resolve.game_state.pos] = \
-                    reduce_helper(
+                    reduce_singleton(
                         self._remote_red,
                         resolve_data
                     ).remoteness + 1

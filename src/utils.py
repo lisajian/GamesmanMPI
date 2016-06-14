@@ -12,16 +12,31 @@ STATE_MAP       = {0:"win", 1:"loss", 2:"tie", 3:"draw", 4:"undecided"}
 
 
 def negate(state):
+    """
+    'Negate' a state.
+    In otherwords, a WIN becomes a LOSS, otherwise preserve the states:
+    TIE -> TIE
+    DRAW -> DRAW
+    UNDECIDED -> UNDECIDED
+    """
     neg = (1, 0, 2, 3, 4)
     return neg[state]
 
 
 def to_str(state):
+    """
+    Give an intuitive string WIN, LOSS, TIE, DRAW, UNDECIDED representation
+    for a state.
+    """
     str_rep = ("WIN", "LOSS", "TIE", "DRAW", "UNDECIDED")
     return str_rep[state]
 
 
-def reduce_helper(function, data):
+def reduce_singleton(function, data):
+    """
+    Applies a function to *1* or more elements of a list
+    as opposed to two or more for the standard reduce.
+    """
     if len(data) == 1:
         return function(data[0], None)
     return reduce(function, data)
