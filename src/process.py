@@ -231,6 +231,11 @@ class Process:
             return function(data[0], None)
         return reduce(function, data)
 
+    def _cleanup(self, job):
+        del self._pending[job.job_id][:]
+        del self._pending[job.job_id]
+        del self._counter[job.job_id]
+
     def resolve(self, job):
         """
         Given a list of WIN, LOSS, TIE, (DRAW, well maybe for later)
@@ -269,11 +274,5 @@ class Process:
                 to_resolve.job_id
             )
             self.add_job(to)
-            ##############################
-            # CLEANUP                    #
-            ##############################
-
-            # No longer need _pending[job.job_id].
-            del self._pending[job.job_id][:]
-            del self._pending[job.job_id]
-            del self._counter[job.job_id]
+            # Dealloc unneeded _pending and counter data.
+            self._cleanup(job)
