@@ -72,18 +72,27 @@ class GameState:
 
     def is_primitive(self):
         """
-        Determines the difference between
-        WLTD and UNDECIDED
+        Determines the difference between WLTD and UNDECIDED
         """
         return self.state in PRIMITIVES
 
     @property
     def primitive(self):
         """
-        Determines what kind of primitive a
-        variable is: WLTD?
+        Determines what kind of primitive a variable is: WLTD?
         """
         return game_module.primitive(self.pos)
+
+    @property
+    def to_remote_tuple(self):
+        """
+        Converts the given GameState object to a (state, remote)
+        tuple.
+
+        This allows for easier debugging as it decouples the reduction
+        functions from any sort of GameState object. GameState
+        """
+        return (self.state, self.remoteness)
 
     def __str__(self):
         return "Pos: {0}, State: {1}, Remoteness: {2}" \

@@ -196,34 +196,26 @@ class Process:
 
     def _remote_red(self, rem1, rem2):
         """
-        Private method that helps reduce remoteness
-        Takes in two GameStates, and returns a Job with
-        with an appropriate remoteness.
+        Private method that helps reduce remoteness.
+        Takes in two (state, remotness) tuples, and returns a Job with with an
+        appropriate remoteness.
         """
         # TODO: Make cleaner.
         if rem2 is None:
-            return GameState(None, rem1.remoteness, rem1.state)
+            return (rem1[0], rem1[1])
 
-        if rem1.state == LOSS or rem2.state == LOSS:
-            if rem1.state == LOSS and rem2.state == WIN:
-                return GameState(None, rem1.remoteness, LOSS)
-            elif rem1.state == WIN and rem2.state == LOSS:
-                return GameState(None, rem2.remoteness, LOSS)
+        if rem1[0] == LOSS or rem2[0] == LOSS:
+            if rem1[0] == LOSS and rem2[0] == WIN:
+                return (LOSS, rem1[1])
+            elif rem1[0] == WIN and rem2[0] == LOSS:
+                return (LOSS, rem2[1])
             else:
-                return GameState(
-                    None,
-                    min(rem1.remoteness, rem2.remoteness),
-                    LOSS
-                )
-        elif rem2.state == WIN and rem1.state == WIN:
-            return GameState(None, max(rem1.remoteness, rem2.remoteness), WIN)
+                return (LOSS, min(rem1[1], rem2[1]))
+        elif rem2[0] == WIN and rem1[0] == WIN:
+            return (WIN, max(rem1[1], rem2[1]))
         else:
-            # Use rem1.state by default, but rem2.state should work too.
-            return GameState(
-                None,
-                max(rem1.remoteness, rem2.remoteness),
-                rem1.state
-            )
+            # Use rem1's state by default, but rem2's state should work too.
+            return (rem1[0], max(rem1[1], rem2[1]))
 
     def _cleanup(self, job):
         del self._pending[job.job_id][:]
@@ -248,16 +240,17 @@ class Process:
                     to_resolve.game_state.primitive
                 self.remote[to_resolve.game_state.pos] = 0
             else:
+                # Convert [Job, GameState, GameState, ...] ->
                 # [GameState, GameState, ... ]
-                resolve_data = list(self._pending[job.job_id][1:])
-                state_red = [gs.state for gs in resolve_data]
+                tail = self._pending[job.job_id][1:]
+                # [(state, remote), (state, remote), ...]
+                resolve_data = [g.to_remote_tuple for g in tail]
+                # [state, state, ...]
+                state_red = [gs[0] for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = \
                     reduce_singleton(self._res_red, state_red)
                 self.remote[to_resolve.game_state.pos] = \
-                    reduce_singleton(
-                        self._remote_red,
-                        resolve_data
-                    ).remoteness + 1
+                    reduce_singleton(self._remote_red, resolve_data)[1] + 1
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = \
                     self.remote[to_resolve.game_state.pos]
