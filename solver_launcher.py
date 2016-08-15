@@ -35,6 +35,7 @@ comm = MPI.COMM_WORLD
 
 send = comm.send
 recv = comm.recv
+abort = comm.Abort
 
 # Load file and give it to each process.
 game_module = imp.load_source('game_module', args.game_file)
@@ -63,11 +64,12 @@ def validate(mod):
 
 # Make sure the game is properly defined
 validate(src.utils.game_module)
-
+# For debugging with heapy.
 if args.debug:
     src.debug.init_debug(comm.Get_rank())
     send = src.debug.debug_send(comm.send)
     recv = src.debug.debug_recv(comm.recv)
+    abort = src.debug.debug_abort(comm.Abort)
 
 initial_position = src.utils.game_module.initial_position()
 
@@ -77,6 +79,7 @@ process = Process(
     comm,
     send,
     recv,
+    abort,
     stats_dir=args.statsdir
 )
 
@@ -91,3 +94,5 @@ if process.rank == process.root:
     process.add_job(initial_job)
 
 process.run()
+
+comm.Barrier()

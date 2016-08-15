@@ -13,8 +13,8 @@ class Process:
     """
 
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
-                 'world_size', 'comm', 'send', 'recv', 'work',
-                 'received', 'remote', '_id', '_counter',
+                 'world_size', 'comm', 'send', 'recv', 'abort',
+                 'work', 'received', 'remote', '_id', '_counter',
                  '_pending']
     IS_FINISHED = False
 
@@ -50,7 +50,7 @@ class Process:
                     str(self.remote[self.initial_pos.pos]) +
                     " moves"
                 )
-                self.comm.Abort()
+                self.abort()
             if self.work.empty():
                 self.add_job(Job(Job.CHECK_FOR_UPDATES))
             job = self.work.get()
@@ -59,13 +59,15 @@ class Process:
                 continue
             self.add_job(result)
 
-    def __init__(self, rank, world_size, comm, send, recv, stats_dir=''):
+    def __init__(self, rank, world_size, comm,
+                 send, recv, abort, stats_dir=''):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
 
         self.send = send
         self.recv = recv
+        self.abort = abort
 
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)

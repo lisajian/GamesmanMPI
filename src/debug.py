@@ -1,6 +1,5 @@
-import datetime
 import logging
-import jsonpickle as jp
+import objgraph
 
 # Set by init_debug, retains what the MPI process' rank is.
 process_rank = -1
@@ -20,8 +19,8 @@ def init_debug(rank):
 def debug_send(send):
     def func_wrapper(*args, **kwargs):
         for arg in args:
-            logging.debug('Sent: {} at {:%Y-%m-%d %H:%M:%S:%f}'
-                          .format(jp.encode(arg), datetime.datetime.now()))
+            # TODO
+            pass
         return send(*args, **kwargs)
     return func_wrapper
 
@@ -29,7 +28,13 @@ def debug_send(send):
 def debug_recv(recv):
     def func_wrapper(*args, **kwargs):
         res = recv(*args, **kwargs)
-        logging.debug('Received: {} at {:%Y-%m-%d %H:%M:%S:%f}'
-                      .format(jp.encode(res), datetime.datetime.now()))
+        # TODO
         return res
+    return func_wrapper
+
+
+def debug_abort(abort):
+    def func_wrapper():
+        objgraph.show_most_common_types()
+        abort()
     return func_wrapper
