@@ -1,5 +1,7 @@
 import logging
 import objgraph
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 # Set by init_debug, retains what the MPI process' rank is.
 process_rank = -1
@@ -35,6 +37,6 @@ def debug_recv(recv):
 
 def debug_abort(abort):
     def func_wrapper():
-        objgraph.show_most_common_types()
+        pp.pprint(objgraph.get_leaking_objects())
         abort()
     return func_wrapper
