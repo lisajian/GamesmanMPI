@@ -8,7 +8,13 @@ game_module                     = None # This is initialized in solve_launcher.p
 
 
 # Used for logging/display purposes
-STATE_MAP       = {0:"win", 1:"loss", 2:"tie", 3:"draw", 4:"undecided"}
+STATE_MAP = {
+        WIN:"win",
+        LOSS:"loss",
+        TIE:"tie",
+        DRAW:"draw",
+        UNDECIDED:"undecided"
+}
 
 
 def negate(state):
