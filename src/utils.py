@@ -17,6 +17,33 @@ STATE_MAP = {
 }
 
 
+def encode_int(f):
+    """
+    All methods must return an encodable object to be saved to a database.
+    Functions that return an integer do not satisfy this condition. this
+    decorator takes a function that returns integers and changes it to
+    return strings.
+    """
+    def encoded_f(*args):
+        result = f(*args)
+        if type(result) is list:
+            return map(str, result)
+        return str(result)
+    return encoded_f
+
+
+def decode_int(f):
+    """
+    All methods must have an encodable object, ints are not encodable
+    calling decode changes encoded (now string objects) to be just
+    integers now.
+    """
+    def decoded_f(*args):
+        decoded_args = [int(arg) for arg in args]
+        return f(*decoded_args)
+    return decoded_f
+
+
 def negate(state):
     """
     'Negate' a state.
