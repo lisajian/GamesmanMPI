@@ -13,7 +13,7 @@ class Process:
     """
 
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
-                 'world_size', 'comm', 'send', 'recv', 'abort',
+                 'world_size', 'comm', 'isend', 'recv', 'abort',
                  'work', 'received', 'remote', '_id', '_counter',
                  '_pending', 'sent']
     IS_FINISHED = False
@@ -60,12 +60,12 @@ class Process:
             self.work.put(result)
 
     def __init__(self, rank, world_size, comm,
-                 send, recv, abort, stats_dir=''):
+                 isend, recv, abort, stats_dir=''):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
 
-        self.send = send
+        self.isend = isend
         self.recv = recv
         self.abort = abort
 
@@ -147,7 +147,7 @@ class Process:
         # some point.
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
-            req = self.comm.isend(new_job, dest=child.get_hash(self.world_size))
+            req = self.isend(new_job, dest=child.get_hash(self.world_size))
             self.sent.append(req)
 
         self._update_id()
@@ -171,7 +171,7 @@ class Process:
         to be done.
         """
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        self.send(resolve_job, dest=resolve_job.parent)
+        self.isend(resolve_job, dest=resolve_job.parent)
 
     def _res_red(self, res1, res2):
         """

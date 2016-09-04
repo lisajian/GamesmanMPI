@@ -33,7 +33,7 @@ comm = MPI.COMM_WORLD
 # Because comm.send is read only we need to make a
 # new variable.
 
-send = comm.send
+isend = comm.isend
 recv = comm.recv
 abort = comm.Abort
 
@@ -67,7 +67,7 @@ validate(src.utils.game_module)
 # For debugging with heapy.
 if args.debug:
     src.debug.init_debug(comm.Get_rank())
-    send = src.debug.debug_send(comm.send)
+    isend = src.debug.debug_send(comm.isend)
     recv = src.debug.debug_recv(comm.recv)
     abort = src.debug.debug_abort(comm.Abort)
 
@@ -77,7 +77,7 @@ process = Process(
     comm.Get_rank(),
     comm.Get_size(),
     comm,
-    send,
+    isend,
     recv,
     abort,
     stats_dir=args.statsdir
