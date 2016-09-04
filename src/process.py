@@ -75,9 +75,6 @@ class Process:
         self.work = PriorityQueue()
         self.resolved = CacheDict("resolved", stats_dir, self.rank)
         self.remote = CacheDict("remote", stats_dir, self.rank)
-        # As for recieving, should test them when appropriate
-        # in the run loop.
-        self.received = []
         # Keep a dictionary of "distributed tasks"
         # Should contain an id associated with the length of task.
         # For example, you distributed rank 0 has 4, you wish to
@@ -169,12 +166,9 @@ class Process:
         Returns None if there is nothing to be recieved.
         """
         # Probe for any sources
-        if self.comm.probe(source=MPI.ANY_SOURCE):
-            # If there are sources recieve them.
-            self.received.append(self.recv(source=MPI.ANY_SOURCE))
-            for job in self.received:
-                self.add_job(job)
-        del self.received[:]
+        self.comm.probe(source=MPI.ANY_SOURCE)
+        # If there are sources recieve them.
+        self.add_job(self.recv(source=MPI.ANY_SOURCE))
 
     def send_back(self, job):
         """
