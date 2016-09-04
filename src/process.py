@@ -122,8 +122,6 @@ class Process:
             return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
     def _add_pending_state(self, job, children):
-        # Refer to lines 179-187 for an explanation of why this
-        # is done.
         self._pending[self._id] = [job]
         self._counter[self._id] = len(list(children))
 
