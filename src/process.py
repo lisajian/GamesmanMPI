@@ -156,8 +156,6 @@ class Process:
         Returns True if there is new data to be recieved.
         Returns None if there is nothing to be recieved.
         """
-        # Probe for any sources
-        self.comm.probe(source=MPI.ANY_SOURCE)
         # If there are sources recieve them.
         self.work.put(self.recv(source=MPI.ANY_SOURCE))
 
