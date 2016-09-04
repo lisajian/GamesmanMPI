@@ -91,7 +91,7 @@ if process.rank == process.root:
         process.rank,
         Job.INITIAL_JOB_ID
     )
-    process.add_job(initial_job)
+    process.work.put(initial_job)
 
 process.run()
 

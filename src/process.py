@@ -52,12 +52,12 @@ class Process:
                 )
                 self.abort()
             if self.work.empty():
-                self.add_job(Job(Job.CHECK_FOR_UPDATES))
+                self.work.put(Job(Job.CHECK_FOR_UPDATES))
             job = self.work.get()
             result = self.dispatch(job)
             if result is None:  # Check for updates returns nothing.
                 continue
-            self.add_job(result)
+            self.work.put(result)
 
     def __init__(self, rank, world_size, comm,
                  send, recv, abort, stats_dir=''):
@@ -89,13 +89,6 @@ class Process:
         self._counter = CacheDict("counter", stats_dir, self.rank, t="work")
         # job_id -> [ Job, GameStates, ... ]
         self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
-
-    def add_job(self, job):
-        """
-        Adds a job to the priority queue so it may be worked on at an
-        appropriate time
-        """
-        self.work.put(job)
 
     def finished(self, job):
         """
@@ -168,7 +161,7 @@ class Process:
         # Probe for any sources
         self.comm.probe(source=MPI.ANY_SOURCE)
         # If there are sources recieve them.
-        self.add_job(self.recv(source=MPI.ANY_SOURCE))
+        self.work.put(self.recv(source=MPI.ANY_SOURCE))
 
     def send_back(self, job):
         """
@@ -256,6 +249,6 @@ class Process:
                 to_resolve.parent,
                 to_resolve.job_id
             )
-            self.add_job(to)
+            self.work.put(to)
             # Dealloc unneeded _pending and counter data.
             self._cleanup(job)
