@@ -1,4 +1,4 @@
-import hashlib
+from hashlib import md5
 from .utils import UNKNOWN_REMOTENESS, PRIMITIVES, game_module
 
 
@@ -25,7 +25,7 @@ class GameState:
         Based off of the value of it's position.
         """
         return int(
-            hashlib.md5(str(self.pos).encode('utf-8')).hexdigest(),
+            md5(str(self.pos).encode('utf-8')).hexdigest(),
             16
         ) % world_size
 
