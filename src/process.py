@@ -144,7 +144,6 @@ class Process:
         # some point.
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
-
             self.send(new_job, dest=child.get_hash(self.world_size))
 
         self._update_id()
