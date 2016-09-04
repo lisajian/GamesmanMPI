@@ -15,7 +15,7 @@ class Process:
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
                  'world_size', 'comm', 'send', 'recv', 'abort',
                  'work', 'received', 'remote', '_id', '_counter',
-                 '_pending']
+                 '_pending', 'sent']
     IS_FINISHED = False
 
     def dispatch(self, job):
@@ -90,6 +90,9 @@ class Process:
         # job_id -> [ Job, GameStates, ... ]
         self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
 
+        # Keep track of sent requests
+        self.sent = []
+
     def finished(self, job):
         """
         Occurs when the root node has detected that the game has been solved
@@ -145,8 +148,7 @@ class Process:
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
             req = self.comm.isend(new_job, dest=child.get_hash(self.world_size))
-
-        req.wait()
+            self.sent.append(req)
 
         self._update_id()
 
@@ -157,6 +159,9 @@ class Process:
         Returns True if there is new data to be recieved.
         Returns None if there is nothing to be recieved.
         """
+        for req in self.sent:
+            req.wait()
+        del self.sent[:]
         # If there are sources recieve them.
         self.work.put(self.recv(source=MPI.ANY_SOURCE))
 
