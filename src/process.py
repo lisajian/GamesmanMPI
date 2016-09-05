@@ -159,9 +159,11 @@ class Process:
         Returns True if there is new data to be recieved.
         Returns None if there is nothing to be recieved.
         """
-        for req in self.sent:
-            req.wait()
-        del self.sent[:]
+        for req in self.sent[:]:
+            if req.test():
+                req.wait()
+                self.sent.remove(req)
+
         # If there are sources recieve them.
         self.work.put(self.recv(source=MPI.ANY_SOURCE))
 
