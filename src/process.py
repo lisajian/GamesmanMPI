@@ -177,40 +177,34 @@ class Process:
         req = self.isend(resolve_job, dest=resolve_job.parent)
         self.sent.append(req)
 
-    def _res_red(self, res1, res2):
+    def _res_red(self, child_states):
         """
         Private method that helps reduce in resolve.
         """
-        nums = (0, 3, 2, 1)
-        states = (WIN, DRAW, TIE, LOSS)
 
-        if res2 is None:
-            return negate(res1)
-        max_num = max(nums[res1], nums[res2])
-        return negate(states[max_num])
+        if TIE in child_states:
+            return TIE
+        if LOSS in child_states:
+            return WIN
+        return LOSS
 
-    def _remote_red(self, rem1, rem2):
+    def _remote_red(self, state, children):
         """
         Private method that helps reduce remoteness.
-        Takes in two (state, remotness) tuples, and returns a Job with with an
-        appropriate remoteness.
+        Takes in the state of the current gamestate and the remoteness of the
+        children.
         """
-        # TODO: Make cleaner.
-        if rem2 is None:
-            return (rem1[0], rem1[1])
-
-        if rem1[0] == LOSS or rem2[0] == LOSS:
-            if rem1[0] == LOSS and rem2[0] == WIN:
-                return (LOSS, rem1[1])
-            elif rem1[0] == WIN and rem2[0] == LOSS:
-                return (LOSS, rem2[1])
-            else:
-                return (LOSS, min(rem1[1], rem2[1]))
-        elif rem2[0] == WIN and rem1[0] == WIN:
-            return (WIN, max(rem1[1], rem2[1]))
-        else:
-            # Use rem1's state by default, but rem2's state should work too.
-            return (rem1[0], max(rem1[1], rem2[1]))
+        if state == WIN:
+            losers = filter(lambda c: c.state == LOSS, children)
+            remotes = [loser.remoteness for loser in losers]
+            return min(remotes) + 1
+        elif state == LOSS:
+            remotes = [child.remoteness for child in children]
+            return max(remotes) + 1
+        elif state == TIE:
+            ties = filter(lambda c: c.state == TIE, children)
+            remotes = [tie.remoteness for tie in ties]
+            return max(remotes) + 1
 
     def _cleanup(self, job):
         del self._pending[job.job_id][:]
@@ -243,9 +237,10 @@ class Process:
                 # [state, state, ...]
                 state_red = [gs[0] for gs in resolve_data]
                 self.resolved[to_resolve.game_state.pos] = \
-                    reduce_singleton(self._res_red, state_red)
+                    self._res_red(state_red)
                 self.remote[to_resolve.game_state.pos] = \
-                    reduce_singleton(self._remote_red, resolve_data)[1] + 1
+                    self._remote_red(self.resolved[to_resolve.game_state.pos],
+                                     tail)
                 job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = \
                     self.remote[to_resolve.game_state.pos]
