@@ -165,7 +165,8 @@ class Process:
                 self.sent.remove(req)
 
         # If there are sources recieve them.
-        self.work.put(self.recv(source=MPI.ANY_SOURCE))
+        while self.comm.Iprobe():
+            self.work.put(self.recv())
 
     def send_back(self, job):
         """
