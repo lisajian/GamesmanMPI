@@ -173,7 +173,8 @@ class Process:
         to be done.
         """
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        self.isend(resolve_job, dest=resolve_job.parent)
+        req = self.isend(resolve_job, dest=resolve_job.parent)
+        self.sent.append(req)
 
     def _res_red(self, res1, res2):
         """
