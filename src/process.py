@@ -160,8 +160,7 @@ class Process:
         Returns None if there is nothing to be recieved.
         """
         for req in self.sent[:]:
-            if req.test():
-                req.wait()
+            if req.test()[0]:
                 self.sent.remove(req)
 
         # If there are sources recieve them.
