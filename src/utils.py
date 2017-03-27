@@ -5,6 +5,7 @@ PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
+WORK_SIZE                       = 1000 # Limit for work queue
 
 
 # Used for logging/display purposes

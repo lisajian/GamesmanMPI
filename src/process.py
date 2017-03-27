@@ -2,7 +2,8 @@ from mpi4py import MPI
 from .game_state import GameState
 from .job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
-                   TIE, DRAW, to_str, reduce_singleton
+                   TIE, DRAW, to_str, reduce_singleton, \
+                   WORK_SIZE
 from .cache_dict import CacheDict
 from queue import PriorityQueue
 
@@ -160,13 +161,15 @@ class Process:
         Returns None if there is nothing to be recieved.
         """
         for req in self.sent[:]:
-            if req.test():
-                req.wait()
+            if req.test()[0]:
                 self.sent.remove(req)
 
         # If there are sources recieve them.
-        while self.comm.Iprobe():
-            self.work.put(self.recv())
+        for i in range(self.comm.size):
+            if self.comm.Iprobe(source=i):
+                if self.work.qsize() > WORK_SIZE:
+                    break
+                self.work.put(self.recv())
 
     def send_back(self, job):
         """
