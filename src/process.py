@@ -16,7 +16,7 @@ class Process:
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
                  'world_size', 'comm', 'isend', 'recv', 'abort',
                  'work', 'received', 'remote', '_id', '_counter',
-                 '_pending', 'sent']
+                 '_pending', '_for_later', 'sent']
     IS_FINISHED = False
 
     def dispatch(self, job):
@@ -90,7 +90,8 @@ class Process:
         self._counter = CacheDict("counter", stats_dir, self.rank, t="work")
         # job_id -> [ Job, GameStates, ... ]
         self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
-
+        # Sent jobs that we will send in check_uodates
+        self._for_later = CacheDict("for_later", stats_dir, self.rank, t="work")
         # Keep track of sent requests
         self.sent = []
 
@@ -148,10 +149,22 @@ class Process:
         # some point.
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
-            req = self.isend(new_job, dest=child.get_hash(self.world_size))
-            self.sent.append(req)
+            if len(self.sent) < WORK_SIZE:
+                req = self.isend(new_job, dest=child.get_hash(self.world_size))
+                self.sent.append(req)
+                self._update_id()
+            else:
+                print("HERE")
+                self.store_job(new_job)
 
+    def store_job(self, job):
+        """
+        Sometimes we must save the job for later, so serialize it
+        wait until we can (in check_updates).
+        """
+        self._for_later[self._id] = job
         self._update_id()
+
 
     def check_for_updates(self, job):
         """
