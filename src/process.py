@@ -6,7 +6,8 @@ from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    WORK_SIZE
 from .cache_dict import CacheDict
 from queue import PriorityQueue
-
+import shelve
+import os
 
 class Process:
     """
@@ -91,7 +92,7 @@ class Process:
         # job_id -> [ Job, GameStates, ... ]
         self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
         # Sent jobs that we will send in check_uodates
-        self._for_later = CacheDict("for_later", stats_dir, self.rank, t="work")
+        self._for_later = shelve.open("work/" + str(self.rank) + "/for_later")
         # Keep track of sent requests
         self.sent = []
 
@@ -163,7 +164,7 @@ class Process:
         Sometimes we must save the job for later, so serialize it
         wait until we can (in check_updates).
         """
-        self._for_later[self._id] = job
+        # TODO
 
     def check_for_updates(self, job):
         """
@@ -172,9 +173,18 @@ class Process:
         Returns True if there is new data to be recieved.
         Returns None if there is nothing to be recieved.
         """
+        # Check if stuff got sent through.
         for req in self.sent[:]:
             if req.test()[0]:
                 self.sent.remove(req)
+
+        # Send stuff that was meant for later
+        while len(self.sent) < WORK_SIZE:
+            try:
+                req = self.isend(self._for_later.pop(list(self._for_later.keys())[0]), dest=child.get_hash(self.world_size))
+                self.sent.append(req)
+            except: # _for_later is empty.
+                break
 
         # If there are sources recieve them.
         for i in range(self.comm.size):

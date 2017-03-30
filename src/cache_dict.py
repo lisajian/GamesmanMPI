@@ -77,3 +77,13 @@ class CacheDict:
 
     def __contains__(self, item):
         return item in self._file_dict
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        for _, v in self._cache.items():
+            yield v
+
+        for _, v in self._file_dict.items():
+            yield v
