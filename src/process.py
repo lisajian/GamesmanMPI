@@ -152,10 +152,11 @@ class Process:
             if len(self.sent) < WORK_SIZE:
                 req = self.isend(new_job, dest=child.get_hash(self.world_size))
                 self.sent.append(req)
-                self._update_id()
             else:
-                print("HERE")
                 self.store_job(new_job)
+
+        self._update_id()
+
 
     def store_job(self, job):
         """
@@ -163,8 +164,6 @@ class Process:
         wait until we can (in check_updates).
         """
         self._for_later[self._id] = job
-        self._update_id()
-
 
     def check_for_updates(self, job):
         """
