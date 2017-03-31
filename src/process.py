@@ -254,7 +254,9 @@ class Process:
         """
         self._counter[str(job.job_id)] -= 1
         # [Job, GameState, ... ]
-        self._pending[str(job.job_id)].append(job.game_state)
+        temp = self._pending[str(job.job_id)]
+        temp.append(job.game_state)
+        self._pending[str(job.job_id)] = temp
         # Resolve _pending
         if self._counter[str(job.job_id)] == 0:
             # [Job, GameState, ...] -> Job
