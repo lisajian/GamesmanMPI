@@ -6,6 +6,9 @@ from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    WORK_SIZE
 from .cache_dict import CacheDict
 from queue import PriorityQueue
+from queuelib import FifoDiskQueue
+import jsonpickle
+import gc
 import shelve
 import os
 
@@ -63,6 +66,7 @@ class Process:
 
     def __init__(self, rank, world_size, comm,
                  isend, recv, abort, stats_dir=''):
+        gc.set_threshold(100)
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
@@ -75,8 +79,10 @@ class Process:
         self.root = self.initial_pos.get_hash(self.world_size)
 
         self.work = PriorityQueue()
-        self.resolved = CacheDict("resolved", stats_dir, self.rank)
-        self.remote = CacheDict("remote", stats_dir, self.rank)
+        os.makedirs("work/" + str(self.rank))
+        os.makedirs("stats/" + str(self.rank))
+        self.resolved = shelve.open("stats/" + str(self.rank) + "/resolved")
+        self.remote = shelve.open("stats/" + str(self.rank) + "/remote")
         # Keep a dictionary of "distributed tasks"
         # Should contain an id associated with the length of task.
         # For example, you distributed rank 0 has 4, you wish to
@@ -88,11 +94,11 @@ class Process:
         # Job id tracker.
         self._id = 0
         # A job_id -> Number of results remaining.
-        self._counter = CacheDict("counter", stats_dir, self.rank, t="work")
+        self._counter = shelve.open("work/" + str(self.rank) + "/counter")
         # job_id -> [ Job, GameStates, ... ]
-        self._pending = CacheDict("pending", stats_dir, self.rank, t="work")
+        self._pending = shelve.open("work/" + str(self.rank) + "/pending")
         # Sent jobs that we will send in check_uodates
-        self._for_later = shelve.open("work/" + str(self.rank) + "/for_later")
+        self._for_later = FifoDiskQueue("work/" + str(self.rank) + "/for_later")
         # Keep track of sent requests
         self.sent = []
 
@@ -124,12 +130,13 @@ class Process:
                     job.parent,
                     job.job_id
                 )
+
             # Not a primitive.
             return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
     def _add_pending_state(self, job, children):
-        self._pending[self._id] = [job]
-        self._counter[self._id] = len(list(children))
+        self._pending[str(self._id)] = [job]
+        self._counter[str(self._id)] = len(list(children))
 
     def _update_id(self):
         """
@@ -164,7 +171,7 @@ class Process:
         Sometimes we must save the job for later, so serialize it
         wait until we can (in check_updates).
         """
-        # TODO
+        self._for_later.push(jsonpickle.encode(job).encode())
 
     def check_for_updates(self, job):
         """
@@ -180,10 +187,12 @@ class Process:
 
         # Send stuff that was meant for later
         while len(self.sent) < WORK_SIZE:
-            try:
-                req = self.isend(self._for_later.pop(list(self._for_later.keys())[0]), dest=child.get_hash(self.world_size))
+            to_send = self._for_later.pop()
+            if to_send:
+                to_send = jsonpickle.decode(to_send)
+                req = self.isend(to_send, dest=to_send.game_state.get_hash(self.world_size))
                 self.sent.append(req)
-            except: # _for_later is empty.
+            else:
                 break
 
         # If there are sources recieve them.
@@ -191,7 +200,8 @@ class Process:
             if self.comm.Iprobe(source=i):
                 if self.work.qsize() > WORK_SIZE:
                     break
-                self.work.put(self.recv())
+                self.work.put(self.recv(source=i))
+
 
     def send_back(self, job):
         """
@@ -232,9 +242,9 @@ class Process:
             return max(remotes) + 1
 
     def _cleanup(self, job):
-        del self._pending[job.job_id][:]
-        del self._pending[job.job_id]
-        del self._counter[job.job_id]
+        del self._pending[str(job.job_id)][:]
+        del self._pending[str(job.job_id)]
+        del self._counter[str(job.job_id)]
 
     def resolve(self, job):
         """
@@ -242,33 +252,33 @@ class Process:
         determine whether this position in the game tree is a WIN,
         LOSS, TIE, or DRAW.
         """
-        self._counter[job.job_id] -= 1
+        self._counter[str(job.job_id)] -= 1
         # [Job, GameState, ... ]
-        self._pending[job.job_id].append(job.game_state)
+        self._pending[str(job.job_id)].append(job.game_state)
         # Resolve _pending
-        if self._counter[job.job_id] == 0:
+        if self._counter[str(job.job_id)] == 0:
             # [Job, GameState, ...] -> Job
-            to_resolve = self._pending[job.job_id][0]
+            to_resolve = self._pending[str(job.job_id)][0]
             if to_resolve.game_state.is_primitive():
-                self.resolved[to_resolve.game_state.pos] = \
+                self.resolved[str(to_resolve.game_state.pos)] = \
                     to_resolve.game_state.primitive
-                self.remote[to_resolve.game_state.pos] = 0
+                self.remote[str(to_resolve.game_state.pos)] = 0
             else:
                 # Convert [Job, GameState, GameState, ...] ->
                 # [GameState, GameState, ... ]
-                tail = self._pending[job.job_id][1:]
+                tail = self._pending[str(job.job_id)][1:]
                 # [(state, remote), (state, remote), ...]
                 resolve_data = [g.to_remote_tuple for g in tail]
                 # [state, state, ...]
                 state_red = [gs[0] for gs in resolve_data]
-                self.resolved[to_resolve.game_state.pos] = \
+                self.resolved[str(to_resolve.game_state.pos)] = \
                     self._res_red(state_red)
-                self.remote[to_resolve.game_state.pos] = \
+                self.remote[str(to_resolve.game_state.pos)] = \
                     self._remote_red(self.resolved[to_resolve.game_state.pos],
                                      tail)
-                job.game_state.state = self.resolved[to_resolve.game_state.pos]
+                job.game_state.state = self.resolved[str(to_resolve.game_state.pos)]
                 job.game_state.remoteness = \
-                    self.remote[to_resolve.game_state.pos]
+                    self.remote[str(to_resolve.game_state.pos)]
             to = Job(
                 Job.SEND_BACK,
                 job.game_state,
