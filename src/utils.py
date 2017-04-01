@@ -5,7 +5,7 @@ PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
-WORK_SIZE                       = 250 # Limit for work queue
+THROUGHPUT                      = 1000000 # throughput limit.
 
 
 # Used for logging/display purposes
