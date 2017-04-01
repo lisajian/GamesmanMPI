@@ -204,11 +204,11 @@ class Process:
 
         # If there are sources recieve them.
         for i in range(self.comm.size):
-            if self.comm.Iprobe(source=i):
-                self.work.put(self.recv(source=i))
-                self.throughput += 1
             if self.throughput >= THROUGHPUT:
                 break
+            elif self.comm.Iprobe(source=i):
+                self.work.put(self.recv(source=i))
+                self.throughput += 1
 
     def send_back(self, job):
         """
@@ -217,7 +217,6 @@ class Process:
         """
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
         if self.throughput >= 0:
-            print("RESOLVING")
             req = self.isend(resolve_job, dest=resolve_job.parent)
             self.sent.append(req)
             self.throughput -= 1
