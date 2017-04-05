@@ -18,13 +18,6 @@ parser.add_argument(
     action="store_true"
 )
 
-parser.add_argument(
-    "-sd",
-    "--statsdir",
-    help="location to store statistics about game",
-    action="store"
-)
-
 args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
@@ -80,7 +73,6 @@ process = Process(
     isend,
     recv,
     abort,
-    stats_dir=args.statsdir
 )
 
 if process.rank == process.root:

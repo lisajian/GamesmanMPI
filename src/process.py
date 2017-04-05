@@ -66,7 +66,7 @@ class Process:
             self.work.put(result)
 
     def __init__(self, rank, world_size, comm,
-                 isend, recv, abort, stats_dir=''):
+                 isend, recv, abort):
         gc.set_threshold(0)
         self.rank = rank
         self.world_size = world_size
@@ -79,14 +79,12 @@ class Process:
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)
 
-        self.throughput = THROUGHPUT / 2
+        self.throughput = THROUGHPUT / 100
 
 
         self.work = PriorityQueue()
-        os.makedirs("work/" + str(self.rank))
-        os.makedirs("stats/" + str(self.rank))
-        self.resolved = shelve.open("stats/" + str(self.rank) + "/resolved")
-        self.remote = shelve.open("stats/" + str(self.rank) + "/remote")
+        self.resolved = CacheDict("resolved", "stats", self.rank)
+        self.remote = CacheDict("remote", "stats", self.rank)
         # Keep a dictionary of "distributed tasks"
         # Should contain an id associated with the length of task.
         # For example, you distributed rank 0 has 4, you wish to
@@ -98,9 +96,9 @@ class Process:
         # Job id tracker.
         self._id = 0
         # A job_id -> Number of results remaining.
-        self._counter = shelve.open("work/" + str(self.rank) + "/counter")
+        self._counter = CacheDict("counter", "work", self.rank)
         # job_id -> [ Job, GameStates, ... ]
-        self._pending = shelve.open("work/" + str(self.rank) + "/pending")
+        self._pending = CacheDict("pending", "work", self.rank)
         # Sent jobs that we will send in check_uodates
         self._for_later = FifoDiskQueue("work/" + str(self.rank) + "/for_later")
         # Keep track of sent requests
@@ -188,7 +186,6 @@ class Process:
         # Check if stuff got sent through.
         for req in self.sent[:]:
             if req.test()[0]:
-                req.wait()
                 self.sent.remove(req)
 
         # Send stuff that was meant for later
@@ -220,6 +217,7 @@ class Process:
             req = self.isend(resolve_job, dest=resolve_job.parent)
             self.sent.append(req)
             self.throughput -= 1
+
         else:
             self.store_job(resolve_job)
 
