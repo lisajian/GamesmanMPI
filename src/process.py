@@ -81,7 +81,6 @@ class Process:
 
         self.throughput = THROUGHPUT / 2
 
-
         self.work = PriorityQueue()
         os.makedirs("work/" + str(self.rank))
         os.makedirs("stats/" + str(self.rank))
@@ -295,4 +294,3 @@ class Process:
                 to_resolve.job_id
             )
             self.work.put(to)
-        gc.collect()
