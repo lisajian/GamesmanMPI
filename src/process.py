@@ -3,7 +3,7 @@ from .game_state import GameState
 from .job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    TIE, DRAW, to_str, reduce_singleton, \
-                   THROUGHPUT
+                   INPUT, OUTPUT
 from .cache_dict import CacheDict
 from queue import PriorityQueue
 from queuelib import LifoDiskQueue
@@ -21,7 +21,7 @@ class Process:
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
                  'world_size', 'comm', 'isend', 'recv', 'abort',
                  'work', 'received', 'remote', '_id', '_counter',
-                 '_pending', '_for_later', 'sent', 'throughput']
+                 '_pending', '_for_later', 'sent', 'output', 'input']
     IS_FINISHED = False
 
     def dispatch(self, job):
@@ -67,7 +67,6 @@ class Process:
 
     def __init__(self, rank, world_size, comm,
                  isend, recv, abort, stats_dir=''):
-        gc.set_threshold(0)
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
@@ -79,7 +78,9 @@ class Process:
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)
 
-        self.throughput = THROUGHPUT / 2
+        # Throughput variables.
+        self.output = 0
+        self.input = 0
 
         self.work = PriorityQueue()
         os.makedirs("work/" + str(self.rank))
@@ -160,12 +161,13 @@ class Process:
         # some point.
         for child in children:
             new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
-            if self.throughput >= 0:
+            if self.output <= OUTPUT:
                 req = self.isend(new_job, dest=child.get_hash(self.world_size))
                 self.sent.append(req)
-                self.throughput -= 1
+                self.output += 1
             else:
                 self.store_job(new_job)
+            self.input -= 1
 
         self._update_id()
 
@@ -189,25 +191,26 @@ class Process:
             if req.test()[0]:
                 req.wait()
                 self.sent.remove(req)
+            self.output -= 1
 
         # Send stuff that was meant for later
-        while self.throughput >= 0:
+        while self.output <= OUTPUT:
             to_send = self._for_later.pop()
             if to_send:
                 to_send = jsonpickle.decode(to_send)
                 req = self.isend(to_send, dest=to_send.game_state.get_hash(self.world_size))
                 self.sent.append(req)
-                self.throughput -= 1
+                self.output += 1
             else:
                 break
 
         # If there are sources recieve them.
         for i in range(self.comm.size):
-            if self.throughput >= THROUGHPUT:
+            if self.input >= INPUT:
                 break
             elif self.comm.Iprobe(source=i):
                 self.work.put(self.recv(source=i))
-                self.throughput += 1
+                self.input += 1
 
     def send_back(self, job):
         """
@@ -215,12 +218,13 @@ class Process:
         to be done.
         """
         resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
-        if self.throughput >= 0:
+        if self.output <= OUTPUT:
             req = self.isend(resolve_job, dest=resolve_job.parent)
             self.sent.append(req)
-            self.throughput -= 1
+            self.output -= 1
         else:
             self.store_job(resolve_job)
+        self.input -= 1
 
 
     def _res_red(self, child_states):
