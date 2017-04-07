@@ -6,7 +6,7 @@ from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    THROUGHPUT
 from .cache_dict import CacheDict
 from queue import PriorityQueue
-from queuelib import FifoDiskQueue
+from queuelib import LifoDiskQueue
 import jsonpickle
 import gc
 import shelve
@@ -101,7 +101,7 @@ class Process:
         # job_id -> [ Job, GameStates, ... ]
         self._pending = shelve.open("work/" + str(self.rank) + "/pending")
         # Sent jobs that we will send in check_uodates
-        self._for_later = FifoDiskQueue("work/" + str(self.rank) + "/for_later")
+        self._for_later = LifoDiskQueue("work/" + str(self.rank) + "/for_later")
         # Keep track of sent requests
         self.sent = []
 
