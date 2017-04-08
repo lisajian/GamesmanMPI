@@ -191,7 +191,7 @@ class Process:
             if req.test()[0]:
                 req.wait()
                 self.sent.remove(req)
-            self.output -= 1
+                self.output -= 1
 
         # Send stuff that was meant for later
         while self.output <= OUTPUT:
