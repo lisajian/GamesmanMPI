@@ -198,8 +198,12 @@ class Process:
             to_send = self._for_later.pop()
             if to_send:
                 to_send = jsonpickle.decode(to_send)
-                req = self.isend(to_send, dest=to_send.game_state.get_hash(self.world_size))
-                self.sent.append(req)
+                if to_send.job_type == Job.RESOLVE:
+                    req = self.isend(to_send, dest=to_send.parent)
+                    self.sent.append(req)
+                else:
+                    req = self.isend(to_send, dest=to_send.game_state.get_hash(self.world_size))
+                    self.sent.append(req)
                 self.output += 1
             else:
                 break
