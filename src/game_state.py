@@ -83,7 +83,6 @@ class GameState:
         """
         return game_module.primitive(self.pos)
 
-    @property
     def to_remote_tuple(self):
         """
         Converts the given GameState object to a (state, remote)

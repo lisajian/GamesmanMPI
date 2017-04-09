@@ -283,7 +283,7 @@ class Process:
                 # [GameState, GameState, ... ]
                 tail = temp[1:]
                 # [(state, remote), (state, remote), ...]
-                resolve_data = (g.to_remote_tuple for g in tail)
+                resolve_data = (g.to_remote_tuple() for g in tail)
                 # [state, state, ...]
                 state_red = (gs[0] for gs in resolve_data)
                 self.resolved[str(to_resolve.game_state.pos)] = \
