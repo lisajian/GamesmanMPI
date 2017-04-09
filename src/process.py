@@ -274,9 +274,9 @@ class Process:
             # temp is already in memory so use it!
             to_resolve = temp[0]
             if to_resolve.game_state.is_primitive():
-                self.resolved[str(to_resolve.game_state.pos)] = \
+                self.resolved[to_resolve.game_state.pos] = \
                     to_resolve.game_state.primitive
-                self.remote[str(to_resolve.game_state.pos)] = 0
+                self.remote[to_resolve.game_state.pos] = 0
             else:
                 # Convert [Job, GameState, GameState, ...] ->
                 # [GameState, GameState, ... ]
@@ -285,14 +285,14 @@ class Process:
                 resolve_data = (g.to_remote_tuple() for g in tail)
                 # [state, state, ...]
                 state_red = (gs[0] for gs in resolve_data)
-                self.resolved[str(to_resolve.game_state.pos)] = \
+                self.resolved[to_resolve.game_state.pos] = \
                     self._res_red(state_red)
-                self.remote[str(to_resolve.game_state.pos)] = \
+                self.remote[to_resolve.game_state.pos] = \
                     self._remote_red(self.resolved[to_resolve.game_state.pos],
                                      tail)
-                job.game_state.state = self.resolved[str(to_resolve.game_state.pos)]
+                job.game_state.state = self.resolved[to_resolve.game_state.pos]
                 job.game_state.remoteness = \
-                    self.remote[str(to_resolve.game_state.pos)]
+                    self.remote[to_resolve.game_state.pos]
             to = Job(
                 Job.SEND_BACK,
                 job.game_state,
