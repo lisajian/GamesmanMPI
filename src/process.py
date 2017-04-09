@@ -253,10 +253,9 @@ class Process:
         elif state == LOSS:
             remotes = [child.remoteness for child in children]
             return max(remotes) + 1
-        elif state == TIE:
-            ties = filter(lambda c: c.state == TIE, children)
-            remotes = [tie.remoteness for tie in ties]
-            return max(remotes) + 1
+        ties = filter(lambda c: c.state == TIE, children)
+        remotes = [tie.remoteness for tie in ties]
+        return max(remotes) + 1
 
     def resolve(self, job):
         """
