@@ -151,7 +151,7 @@ class Process:
         Given a gamestate distributes the results to the appropriate
         children.
         """
-        children = list(job.game_state.expand())
+        children = tuple(job.game_state.expand())
         # Add new pending state information.
         self._add_pending_state(job, children)
         # Keep a list of the requests made by isend. Something may
@@ -187,6 +187,7 @@ class Process:
         # Check if stuff got sent through.
         for req in self.sent[:]:
             if req.test()[0]:
+                req.wait()
                 self.sent.remove(req)
                 self.output -= 1
 
@@ -282,9 +283,9 @@ class Process:
                 # [GameState, GameState, ... ]
                 tail = temp[1:]
                 # [(state, remote), (state, remote), ...]
-                resolve_data = [g.to_remote_tuple for g in tail]
+                resolve_data = (g.to_remote_tuple for g in tail)
                 # [state, state, ...]
-                state_red = [gs[0] for gs in resolve_data]
+                state_red = (gs[0] for gs in resolve_data)
                 self.resolved[str(to_resolve.game_state.pos)] = \
                     self._res_red(state_red)
                 self.remote[str(to_resolve.game_state.pos)] = \
