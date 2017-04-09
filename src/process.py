@@ -248,13 +248,13 @@ class Process:
         """
         if state == WIN:
             losers = filter(lambda c: c.state == LOSS, children)
-            remotes = [loser.remoteness for loser in losers]
+            remotes = (loser.remoteness for loser in losers)
             return min(remotes) + 1
         elif state == LOSS:
-            remotes = [child.remoteness for child in children]
+            remotes = (child.remoteness for child in children)
             return max(remotes) + 1
         ties = filter(lambda c: c.state == TIE, children)
-        remotes = [tie.remoteness for tie in ties]
+        remotes = (tie.remoteness for tie in ties)
         return max(remotes) + 1
 
     def resolve(self, job):
