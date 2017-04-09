@@ -8,10 +8,8 @@ from .cache_dict import CacheDict
 from queue import PriorityQueue
 from queuelib import LifoDiskQueue
 import jsonpickle
-import gc
 import shelve
 import os
-import sys
 
 class Process:
     """
@@ -85,8 +83,8 @@ class Process:
         self.work = PriorityQueue()
         os.makedirs("work/" + str(self.rank))
         os.makedirs("stats/" + str(self.rank))
-        self.resolved = shelve.open("stats/" + str(self.rank) + "/resolved")
-        self.remote = shelve.open("stats/" + str(self.rank) + "/remote")
+        self.resolved = CacheDict("stats/" + str(self.rank) + "/resolved")
+        self.remote = CacheDict("stats/" + str(self.rank) + "/remote")
         # Keep a dictionary of "distributed tasks"
         # Should contain an id associated with the length of task.
         # For example, you distributed rank 0 has 4, you wish to
