@@ -13,12 +13,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--debug",
-    help="Enables or disables logging",
-    action="store_true"
-)
-
-parser.add_argument(
     "-sd",
     "--statsdir",
     help="location to store statistics about game",
@@ -29,7 +23,6 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
-# May be later modified for debugging purposes.
 # Because comm.send is read only we need to make a
 # new variable.
 
@@ -49,7 +42,6 @@ comm.Barrier()
 from src.game_state import GameState  # NOQA
 from src.job import Job  # NOQA
 from src.process import Process  # NOQA
-import src.debug  # NOQA
 
 
 def validate(mod):
@@ -64,13 +56,6 @@ def validate(mod):
 
 # Make sure the game is properly defined
 validate(src.utils.game_module)
-# For debugging with heapy.
-if args.debug:
-    src.debug.init_debug(comm.Get_rank())
-    isend = src.debug.debug_send(comm.isend)
-    recv = src.debug.debug_recv(comm.recv)
-    abort = src.debug.debug_abort(comm.Abort)
-
 initial_position = src.utils.game_module.initial_position()
 
 process = Process(
