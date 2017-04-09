@@ -63,15 +63,14 @@ class Process:
                 continue
             self.work.put(result)
 
-    def __init__(self, rank, world_size, comm,
-                 isend, recv, abort, stats_dir=''):
+    def __init__(self, rank, world_size, comm, stats_dir=''):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
 
-        self.isend = isend
-        self.recv = recv
-        self.abort = abort
+        self.isend = comm.isend
+        self.recv = comm.recv
+        self.abort = comm.Abort
 
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)

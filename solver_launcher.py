@@ -23,13 +23,6 @@ args = parser.parse_args()
 
 comm = MPI.COMM_WORLD
 
-# Because comm.send is read only we need to make a
-# new variable.
-
-isend = comm.isend
-recv = comm.recv
-abort = comm.Abort
-
 # Load file and give it to each process.
 game_module = imp.load_source('game_module', args.game_file)
 src.utils.game_module = game_module
@@ -62,9 +55,6 @@ process = Process(
     comm.Get_rank(),
     comm.Get_size(),
     comm,
-    isend,
-    recv,
-    abort,
     stats_dir=args.statsdir
 )
 
