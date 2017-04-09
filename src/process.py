@@ -187,7 +187,6 @@ class Process:
         # Check if stuff got sent through.
         for req in self.sent[:]:
             if req.test()[0]:
-                req.wait()
                 self.sent.remove(req)
                 self.output -= 1
 
@@ -272,7 +271,8 @@ class Process:
         # Resolve _pending
         if self._counter[str(job.job_id)] == 0:
             # [Job, GameState, ...] -> Job
-            to_resolve = self._pending[str(job.job_id)][0]
+            # temp is already in memory so use it!
+            to_resolve = temp[0]
             if to_resolve.game_state.is_primitive():
                 self.resolved[str(to_resolve.game_state.pos)] = \
                     to_resolve.game_state.primitive
@@ -280,7 +280,7 @@ class Process:
             else:
                 # Convert [Job, GameState, GameState, ...] ->
                 # [GameState, GameState, ... ]
-                tail = self._pending[str(job.job_id)][1:]
+                tail = temp[1:]
                 # [(state, remote), (state, remote), ...]
                 resolve_data = [g.to_remote_tuple for g in tail]
                 # [state, state, ...]
