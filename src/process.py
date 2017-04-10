@@ -19,7 +19,8 @@ class Process:
     __slots__ = ['rank', 'root', 'initial_pos', 'resolved',
                  'world_size', 'comm', 'isend', 'recv', 'abort',
                  'work', 'received', 'remote', '_id', '_counter',
-                 '_pending', '_for_later', 'sent', 'output', 'input']
+                 '_pending', '_for_later', 'sent', 'output', 'input',
+                 'SYNC_CYCLES', 'cycle_counter']
     IS_FINISHED = False
 
     def dispatch(self, job):
@@ -63,7 +64,7 @@ class Process:
                 continue
             self.work.put(result)
 
-    def __init__(self, rank, world_size, comm, stats_dir=''):
+    def __init__(self, rank, world_size, comm, stats_dir='', sync_cycles=1000):
         self.rank = rank
         self.world_size = world_size
         self.comm = comm
@@ -75,6 +76,11 @@ class Process:
         self.initial_pos = GameState(GameState.INITIAL_POS)
         self.root = self.initial_pos.get_hash(self.world_size)
 
+        # For syncing cycles of shelve data. (Periodically need to sync this stuff
+        # so in memeory stuff doesn't pile up.
+        self.SYNC_CYCLES = sync_cycles
+        self.cycle_counter = 1 # Don't start off syncing (happens at 0)
+
         # Throughput variables.
         self.output = 0
         self.input = 0
@@ -82,8 +88,8 @@ class Process:
         self.work = PriorityQueue()
         os.makedirs("work/" + str(self.rank))
         os.makedirs("stats/" + str(self.rank))
-        self.resolved = CacheDict("stats/" + str(self.rank) + "/resolved")
-        self.remote = CacheDict("stats/" + str(self.rank) + "/remote")
+        self.resolved = shelve.open("stats/" + str(self.rank) + "/resolved", writeback=True)
+        self.remote = shelve.open("stats/" + str(self.rank) + "/remote", writeback=True)
         # Keep a dictionary of "distributed tasks"
         # Should contain an id associated with the length of task.
         # For example, you distributed rank 0 has 4, you wish to
@@ -212,6 +218,15 @@ class Process:
             elif self.comm.Iprobe(source=i):
                 self.work.put(self.recv(source=i))
                 self.input += 1
+
+        # Periodically sync stuff to file, otherwise just keep in RAM
+        if self.cycle_counter == 0:
+            self.resolved.sync()
+            self.remote.sync()
+
+        self.cycle_counter += 1
+        self.cycle_counter = self.cycle_counter % self.SYNC_CYCLES
+
 
     def send_back(self, job):
         """
