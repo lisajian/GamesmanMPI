@@ -6,36 +6,28 @@
 #SBATCH --partition=savio
 # 
 # QoS (put into debug mode:
-#SBATCH --qos=savio_normal
+#SBATCH --qos=savio_debug
 #
 # Processors:
 # Based off of here: https://www.rosettacommons.org/node/3597
-#SBATCH --ntasks=480
+#SBATCH --ntasks=20
 #
-# Mail user:
-#SBATCH --mail-type=all
-#SBATCH --mail-user=csumnicht@berkeley.edu
+#SBATCH --time 00:15:00
 #
 # Requeue:
 #SBATCH --requeue
 
 ## Command(s) to run:
+module load intel
 module load openmpi
-module load python/3.2.3
-module load mpi4py
-module load pip
-module load virtualenv/1.7.2
+module load python/3.5.1
 
-#Start virtual env
-virtualenv venv
-source venv/bin/activate
+GAME=test_games/mttt.py
 
-ICC=/global/software/sl-6.x86_64/modules/langs/intel/2013_sp1.4.211/bin/intel64/icc
-STATS_DIR=/global/scratch/kzentner/to_memfix
-GAME=test_games/toot_and_otto_bitstring.py
+pip install --user bitstring
+pip install --user cachetools
+pip install --user queuelib
+pip install --user jsonpickle
+pip install --user mpi4py==2.0.0
 
-# env CC=$ICC pip-3.2 install bitarray
-pip-3.2 install bitstring
-pip-3.2 install cachetools
-
-mpiexec python3 -OO -B solver_launcher.py -sd $STATS_DIR $GAME
+mpiexec -np $SLURM_NTASKS python3 -OO -B solver_launcher.py $GAME

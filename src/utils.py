@@ -4,9 +4,9 @@ WIN, LOSS, TIE, DRAW, UNDECIDED = 0, 1, 2, 3, 4
 PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
-game_module                     = None # This is initialized in solve_launcher.py
-OUTPUT                          = 10 # throughput limit.
-INPUT                           = 20
+game_module                     = None  # This is initialized in solve_launcher.py
+OUTPUT                          = 5 # throughput limit.
+INPUT                           = 10
 
 
 # Used for logging/display purposes
