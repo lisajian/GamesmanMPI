@@ -192,7 +192,6 @@ class Process:
         # Check if stuff got sent through.
         for req in self.sent[:]:
             if req.test()[0]:
-                req.wait()
                 self.sent.remove(req)
                 self.output -= 1
 
