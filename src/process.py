@@ -24,6 +24,8 @@ class Process:
         it, this can range from lookup, to distributing, to
         checking for recieving.
         """
+        # TODO: Refactor this (switch case) so there isn't a dependency when you refactor Process and Job (abstraction barrier)
+        # Will for sure need to get rid of resolve and lookup
         _dispatch_table = (
             self.finished,
             self.lookup,
@@ -108,6 +110,7 @@ class Process:
         try:
             job.game_state.state = self.resolved[job.game_state.pos]
             job.game_state.remoteness = self.remote[job.game_state.pos]
+            # Job(Job.SEND_BACK, {remoteness: '', dwult:}, parent, id)
             return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
         except KeyError:  # Not in dictionary
             # Try to see if it is_primitive:
@@ -125,8 +128,8 @@ class Process:
             return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
 
     def _add_pending_state(self, job, children):
-        self._pending[self._id] = [job]
-        self._counter[self._id] = len(list(children))
+        self._pending[self._id] = [job] # This job is only there so we know where to send it back to
+        self._counter[self._id] = len(children)
 
     def _update_id(self):
         """
@@ -180,7 +183,7 @@ class Process:
         """
         Private method that helps reduce in resolve.
         """
-
+        print("child_states:", child_states)
         if TIE in child_states:
             return TIE
         if LOSS in child_states:
@@ -193,6 +196,7 @@ class Process:
         Takes in the state of the current gamestate and the remoteness of the
         children.
         """
+        print("self.resolved: ", self.resolved)
         if state == WIN:
             losers = filter(lambda c: c.state == LOSS, children)
             remotes = [loser.remoteness for loser in losers]
@@ -220,6 +224,7 @@ class Process:
         # [Job, GameState, ... ]
         self._pending[job.job_id].append(job.game_state)
         # Resolve _pending
+        print("job.game_state.pos:", job.game_state.pos)
         if self._counter[job.job_id] == 0:
             # [Job, GameState, ...] -> Job
             to_resolve = self._pending[job.job_id][0]
@@ -231,10 +236,8 @@ class Process:
                 # Convert [Job, GameState, GameState, ...] ->
                 # [GameState, GameState, ... ]
                 tail = self._pending[job.job_id][1:]
-                # [(state, remote), (state, remote), ...]
-                resolve_data = [g.to_remote_tuple for g in tail]
                 # [state, state, ...]
-                state_red = [gs[0] for gs in resolve_data]
+                state_red = [gs.state for gs in tail]
                 self.resolved[to_resolve.game_state.pos] = \
                     self._res_red(state_red)
                 self.remote[to_resolve.game_state.pos] = \
