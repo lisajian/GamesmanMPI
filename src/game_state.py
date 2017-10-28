@@ -97,3 +97,6 @@ class GameState:
     def __str__(self):
         return "Pos: {0}, State: {1}, Remoteness: {2}" \
             .format(self.pos, self.state, self.remoteness)
+
+    def to_tuple(self):
+        return (self.pos, self.state, self.remoteness)
