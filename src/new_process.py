@@ -1,6 +1,6 @@
 from mpi4py import MPI
 from .game_state import GameState
-from .job import Job
+from .new_job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    TIE, DRAW, to_str, reduce_singleton, PRIMITIVES, game_module, get_hash, DWULT
 from .cache_dict import CacheDict
@@ -238,7 +238,7 @@ class Process:
         self._counter[job.job_id] -= 1
         # [Job, GameState, ... ]
 
-        
+
 
         if self._counter[job.job_id] == 0:
             parent_job_id = job.parent
