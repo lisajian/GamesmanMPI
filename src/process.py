@@ -183,7 +183,6 @@ class Process:
         """
         Private method that helps reduce in resolve.
         """
-        print("child_states:", child_states)
         if TIE in child_states:
             return TIE
         if LOSS in child_states:
@@ -196,7 +195,6 @@ class Process:
         Takes in the state of the current gamestate and the remoteness of the
         children.
         """
-        print("self.resolved: ", self.resolved)
         if state == WIN:
             losers = filter(lambda c: c.state == LOSS, children)
             remotes = [loser.remoteness for loser in losers]
@@ -224,7 +222,6 @@ class Process:
         # [Job, GameState, ... ]
         self._pending[job.job_id].append(job.game_state)
         # Resolve _pending
-        print("job.game_state.pos:", job.game_state.pos)
         if self._counter[job.job_id] == 0:
             # [Job, GameState, ...] -> Job
             to_resolve = self._pending[job.job_id][0]

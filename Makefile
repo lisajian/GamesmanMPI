@@ -1,2 +1,2 @@
 clean:
-	rm -rf stats/~ work/~
+	rm -rf stats/ work/
