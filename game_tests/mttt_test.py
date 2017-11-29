@@ -14,7 +14,6 @@ class TicTacToeTest(unittest.TestCase):
     def test_blank(self):
         """
         Starting position is just a blank board.
-        Should be a TIE in 9 moves
         """
         subprocess.call('make clean'.split())
         with open(out_path, 'w') as f:
@@ -25,7 +24,7 @@ class TicTacToeTest(unittest.TestCase):
 
     def test_tie_in_one(self):
         """
-        Starting position is one move away for each player.
+        Starting position forces a tie for the next player.
         """
         subprocess.call('make clean'.split())
         with open(out_path, 'w') as f:
@@ -37,7 +36,7 @@ class TicTacToeTest(unittest.TestCase):
 
     def test_win_in_one(self):
         """
-        Starting position is one move away for each player.
+        Starting position allows next player to win.
         """
         subprocess.call('make clean'.split())
         with open(out_path, 'w') as f:
@@ -46,3 +45,27 @@ class TicTacToeTest(unittest.TestCase):
                             '--custom game_tests/mttt_test_init_pos.py'.split(), stdout = f)
         with open(out_path, 'r') as f:
             self.assertEqual(f.read(), 'WIN in 1 moves\n')
+
+    def test_side_columns(self):
+        """
+        The sides of columns are filled.
+        """
+        subprocess.call('make clean'.split())
+        with open(out_path, 'w') as f:
+            subprocess.call('mpiexec --oversubscribe -n 2 python solver_launcher.py '
+                            'test_games/mttt.py --init_pos side_columns '
+                            '--custom game_tests/mttt_test_init_pos.py'.split(), stdout = f)
+        with open(out_path, 'r') as f:
+            self.assertEqual(f.read(), 'TIE in 3 moves\n')
+
+    def test_one_row(self):
+        """
+        The sides of columns are filled.
+        """
+        subprocess.call('make clean'.split())
+        with open(out_path, 'w') as f:
+            subprocess.call('mpiexec --oversubscribe -n 2 python solver_launcher.py '
+                            'test_games/mttt.py --init_pos one_row '
+                            '--custom game_tests/mttt_test_init_pos.py'.split(), stdout = f)
+        with open(out_path, 'r') as f:
+            self.assertEqual(f.read(), 'TIE in 3 moves\n')
