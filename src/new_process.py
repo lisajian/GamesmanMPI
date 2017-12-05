@@ -1,6 +1,6 @@
 from mpi4py import MPI
 from .game_state import GameState
-from .job import Job
+from .new_job import Job
 from .utils import negate, PRIMITIVE_REMOTENESS, WIN, LOSS, \
                    TIE, DRAW, to_str, reduce_singleton, PRIMITIVES
 from .cache_dict import CacheDict
@@ -105,24 +105,32 @@ class Process:
         resolved list. Returns the result if this is the case, None
         otherwise.
         """
+        gs_tup = (job.gs_pos, job.gs_prim, job.gs_remoteness)
         try:
-            job.game_state.state = self.resolved[job.game_state.pos]
-            job.game_state.remoteness = self.remote[job.game_state.pos]
-            return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
+            # job.game_state.state = self.resolved[job.game_state.pos]
+            # job.game_state.remoteness = self.remote[job.game_state.pos]
+            # return Job(Job.SEND_BACK, job.game_state, job.parent, job.job_id)
+
+            prim = self.resolved[job.gs_pos]
+            remoteness = self.remote[job.gs_pos]
+            return Job(Job.SEND_BACK, job.parent, job.job_id,
+                       (job.gs_pos, prim, remoteness))
         except KeyError:  # Not in dictionary
             # Try to see if it is_primitive:
-            if job.game_state.is_primitive():
-                self.remote[job.game_state.pos] = PRIMITIVE_REMOTENESS
-                job.game_state.remoteness = PRIMITIVE_REMOTENESS
-                self.resolved[job.game_state.pos] = job.game_state.primitive
+            if job.gs_prim in PRIMITIVES:
+            # if job.game_state.is_primitive():
+                self.remote[job.gs_pos] = PRIMITIVE_REMOTENESS
+                job.gs_remoteness = PRIMITIVE_REMOTENESS
+                self.resolved[job.gs_pos] = job.gs_prim
                 return Job(
                     Job.SEND_BACK,
-                    job.game_state,
                     job.parent,
-                    job.job_id
+                    job.job_id,
+                    gs_tup
                 )
             # Not a primitive.
-            return Job(Job.DISTRIBUTE, job.game_state, job.parent, job.job_id)
+            return Job(Job.DISTRIBUTE, job.parent, job.job_id,
+                       gs_tup)
 
     def _add_pending_state(self, job, children):
         self._pending[self._id] = [job]
@@ -139,14 +147,15 @@ class Process:
         Given a gamestate distributes the results to the appropriate
         children.
         """
-        children = list(job.game_state.expand())
+        children = list(GameState.expand(job.gs_pos))
         # Add new pending state information.
         self._add_pending_state(job, children)
         # Keep a list of the requests made by isend. Something may
         # fail, so we will need to worry about error checking at
         # some point.
         for child in children:
-            new_job = Job(Job.LOOK_UP, child, self.rank, self._id)
+            new_job = Job(Job.LOOK_UP, self.rank, self._id,
+                          (child.pos, child.state, child.remoteness))
             req = self.isend(new_job, dest=child.get_hash(self.world_size))
             self.sent.append(req)
 
@@ -172,7 +181,8 @@ class Process:
         Send the job back to the node who asked for the computation
         to be done.
         """
-        resolve_job = Job(Job.RESOLVE, job.game_state, job.parent, job.job_id)
+        gs_tup = (job.gs_pos, job.gs_prim, job.gs_remoteness)
+        resolve_job = Job(Job.RESOLVE, job.parent, job.job_id, gs_tup)
         req = self.isend(resolve_job, dest=resolve_job.parent)
         self.sent.append(req)
 
@@ -210,9 +220,6 @@ class Process:
         del self._pending[job.job_id]
         del self._counter[job.job_id]
 
-    def get_best_gamestate(curr_gamestate, other_gamestate):
-        pass
-
     def resolve(self, job):
         """
         Given a list of WIN, LOSS, TIE, (DRAW, well maybe for later)
@@ -223,32 +230,35 @@ class Process:
         # [Job, GameState, ... ]
 
         if len(self._pending[job.job_id]) == 1:
-            self._pending[job.job_id].append(job.game_state.to_tuple())
+            self._pending[job.job_id].append(job.gs_tuple())
         else:
             curr_gs_tup = self._pending[job.job_id][1]
-            self._pending[job.job_id][1] = GameState.compare_gamestates(curr_gs_tup, job.game_state.to_tuple())
+            self._pending[job.job_id][1] = GameState.compare_gamestates(curr_gs_tup, job.gs_tuple())
 
         # Resolve _pending
         if self._counter[job.job_id] == 0:
             # [Job, GameState, ...] -> Job
             to_resolve = self._pending[job.job_id][0]
             best_gs = self._pending[job.job_id][1]
-            if to_resolve.game_state.is_primitive():
-                self.resolved[to_resolve.game_state.pos] = \
-                    to_resolve.game_state.primitive
-                self.remote[to_resolve.game_state.pos] = 0
+            if to_resolve.gs_prim in PRIMITIVES:
+            # if to_resolve.game_state.is_primitive():
+                self.resolved[to_resolve.gs_pos] = \
+                    to_resolve.gs_prim
+                self.remote[to_resolve.gs_pos] = 0
             else:
-                self.resolved[to_resolve.game_state.pos] = self._res_red([best_gs[1]])
-                self.remote[to_resolve.game_state.pos] = best_gs[2] + 1
-                job.game_state.state = self.resolved[to_resolve.game_state.pos]
-                job.game_state.remoteness = \
-                    self.remote[to_resolve.game_state.pos]
+                self.resolved[to_resolve.gs_pos] = self._res_red([best_gs[1]])
+                self.remote[to_resolve.gs_pos] = best_gs[2] + 1
+                job.gs_prim = self.resolved[to_resolve.gs_pos]
+                job.gs_remoteness = \
+                    self.remote[to_resolve.gs_pos]
 
             to = Job(
                 Job.SEND_BACK,
-                job.game_state,
                 to_resolve.parent,
-                to_resolve.job_id
+                to_resolve.job_id,
+                (job.gs_pos,
+                job.gs_prim,
+                job.gs_remoteness)
             )
             self.work.put(to)
             # Dealloc unneeded _pending and counter data.

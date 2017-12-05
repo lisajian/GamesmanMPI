@@ -40,3 +40,6 @@ class Job:
 
     def __str__(self):
         return str((self.gs_pos, self.gs_prim, self.gs_remoteness))
+
+    def gs_tuple(self):
+        return (self.gs_pos, self.gs_prim, self.gs_remoteness)

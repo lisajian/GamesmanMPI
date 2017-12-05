@@ -47,8 +47,8 @@ comm.Barrier()
 # Now it is safe to import the classes we need as everything
 # has now been initialized correctly.
 from src.game_state import GameState  # NOQA
-from src.job import Job  # NOQA
-from src.new_process1 import Process  # NOQA
+from src.new_job import Job  # NOQA
+from src.new_process import Process  # NOQA
 import src.debug  # NOQA
 
 
@@ -88,18 +88,18 @@ if process.rank == process.root:
 
     tup = (initial_gamestate.to_tuple())
     # Uncomment for new_solver
-    # initial_job = Job(
-    #     Job.LOOK_UP,
-    #     process.rank,
-    #     Job.INITIAL_JOB_ID,
-    #     tup
-    # )
     initial_job = Job(
         Job.LOOK_UP,
-        initial_gamestate,
         process.rank,
         Job.INITIAL_JOB_ID,
+        tup
     )
+    # initial_job = Job(
+    #     Job.LOOK_UP,
+    #     initial_gamestate,
+    #     process.rank,
+    #     Job.INITIAL_JOB_ID,
+    # )
     process.work.put(initial_job)
 
 process.run()

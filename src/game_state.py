@@ -30,14 +30,14 @@ class GameState:
             16
         ) % world_size
 
-    def expand(self):
+    def expand(game_state_pos):
         """
         Takes the current position and generates the
         children positions.
         """
         return map(
-            lambda m: GameState(game_module.do_move(self.pos, m)),
-            game_module.gen_moves(self.pos)
+            lambda m: GameState(game_module.do_move(game_state_pos, m)),
+            game_module.gen_moves(game_state_pos)
         )
 
     @property
