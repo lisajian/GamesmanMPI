@@ -48,7 +48,7 @@ comm.Barrier()
 # has now been initialized correctly.
 from src.game_state import GameState  # NOQA
 from src.job import Job  # NOQA
-from src.process import Process  # NOQA
+from src.new_process1 import Process  # NOQA
 import src.debug  # NOQA
 
 
@@ -85,11 +85,20 @@ process = Process(
 
 if process.rank == process.root:
     initial_gamestate = GameState(GameState.INITIAL_POS)
+
+    tup = (initial_gamestate.to_tuple())
+    # Uncomment for new_solver
+    # initial_job = Job(
+    #     Job.LOOK_UP,
+    #     process.rank,
+    #     Job.INITIAL_JOB_ID,
+    #     tup
+    # )
     initial_job = Job(
         Job.LOOK_UP,
         initial_gamestate,
         process.rank,
-        Job.INITIAL_JOB_ID
+        Job.INITIAL_JOB_ID,
     )
     process.work.put(initial_job)
 

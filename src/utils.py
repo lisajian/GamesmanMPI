@@ -77,11 +77,29 @@ def reduce_singleton(function, data):
     return reduce(function, data)
 
 
-def get_hash(self, gamestate_pos, world_size):
+def get_hash(gamestate_pos, world_size):
         """
         Returns the appropriate hash of a given GameState position and world size.
         """
         return int(
-            md5(str(self.pos).encode('utf-8')).hexdigest(),
+            md5(str(gamestate_pos).encode('utf-8')).hexdigest(),
             16
         ) % world_size
+
+
+def argmin(tup1, tup2, index):
+        """
+        Returns the argmin tuple
+        """
+        if tup1[index] <= tup2[index]:
+            return tup1
+        return tup2
+
+
+def argmax(tup1, tup2, index):
+        """
+        Returns the argman tuple
+        """
+        if tup1[index] >= tup2[index]:
+            return tup1
+        return tup2

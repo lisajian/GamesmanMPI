@@ -4,7 +4,7 @@ class Job:
     jobs in a queue for the processes to work on.
     """
 
-    __slots__ = ['job_type', 'priority', 'game_state', 'parent', 'job_id']
+    __slots__ = ['job_type', 'parent', 'job_id', 'gs_pos', 'gs_prim', 'gs_remoteness']
 
     # A list of possible job types.
     FINISHED          = 0
@@ -17,7 +17,7 @@ class Job:
     # Special number associated with the initial job id.
     INITIAL_JOB_ID = 0
 
-    def __init__(self, job_type, parent=None, job_id=None, pos_prim_rem_tup):
+    def __init__(self, job_type, parent=None, job_id=None, pos_prim_rem_tup=(None, None, None)):
         """
         Params
         ------
@@ -28,7 +28,7 @@ class Job:
         self.parent     = parent
         self.job_id     = job_id
         self.gs_pos  = pos_prim_rem_tup[0]
-        self.gs_state = pos_prim_rem_tup[1]
+        self.gs_prim = pos_prim_rem_tup[1]
         self.gs_remoteness = pos_prim_rem_tup[2]
 
     def __lt__(self, other):
@@ -37,3 +37,6 @@ class Job:
         they have.
         """
         return self.job_type < other.job_type
+
+    def __str__(self):
+        return str((self.gs_pos, self.gs_prim, self.gs_remoteness))

@@ -1,5 +1,6 @@
 from hashlib import md5
-from .utils import UNKNOWN_REMOTENESS, PRIMITIVES, game_module
+from .utils import UNKNOWN_REMOTENESS, PRIMITIVES, game_module, \
+    argmin, argmax, WIN, LOSS, TIE, DRAW
 
 
 class GameState:
@@ -100,3 +101,25 @@ class GameState:
 
     def to_tuple(self):
         return (self.pos, self.state, self.remoteness)
+
+    def compare_gamestates(gs_tup, other_gs_tup):
+        dwult_1 = gs_tup[1]
+        dwult_2 = other_gs_tup[1]
+        if dwult_1 == WIN:
+            if dwult_2 == WIN:
+                return argmax(gs_tup, other_gs_tup, index=2)
+            return other_gs_tup
+        elif dwult_1 == LOSS:
+            if dwult_2 == WIN:
+                return gs_tup
+            elif dwult_2 == LOSS:
+                # take longest remoteness
+                return argmin(gs_tup, other_gs_tup, index=2)
+            else:
+                return gs_tup
+        else:
+            if dwult_2 == WIN:
+                return gs_tup
+            elif dwult_2 == LOSS:
+                return other_gs_tup
+            return argmin(gs_tup, other_gs_tup, index=2)
