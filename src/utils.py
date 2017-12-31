@@ -1,7 +1,9 @@
 from functools import reduce
+from hashlib import md5
 
 WIN, LOSS, TIE, DRAW, UNDECIDED = 0, 1, 2, 3, 4
-PRIMITIVES                      = (WIN, LOSS, TIE, DRAW)
+PRIMITIVES                      = (WIN, LOSS, TIE, DRAW) # To remove
+DWULT                           = (WIN, LOSS, TIE, DRAW)
 PRIMITIVE_REMOTENESS            = 0
 UNKNOWN_REMOTENESS              = -1
 game_module                     = None # This is initialized in solve_launcher.py
@@ -73,3 +75,31 @@ def reduce_singleton(function, data):
     if len(data) == 1:
         return function(data[0], None)
     return reduce(function, data)
+
+
+def get_hash(gamestate_pos, world_size):
+        """
+        Returns the appropriate hash of a given GameState position and world size.
+        """
+        return int(
+            md5(str(gamestate_pos).encode('utf-8')).hexdigest(),
+            16
+        ) % world_size
+
+
+def argmin(tup1, tup2, index):
+        """
+        Returns the argmin tuple
+        """
+        if tup1[index] <= tup2[index]:
+            return tup1
+        return tup2
+
+
+def argmax(tup1, tup2, index):
+        """
+        Returns the argman tuple
+        """
+        if tup1[index] >= tup2[index]:
+            return tup1
+        return tup2
